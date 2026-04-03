@@ -43,6 +43,15 @@ cd ios && pod install && cd ..
 cp .env.example .env.development
 ```
 
+```bash
+Debug run
+# Init app to emulator
+npx react-native run-android
+
+# Refresh
+npx react-native start
+```
+
 ## Backend Setup (FastAPI)
 ```
 cd backend
@@ -69,7 +78,7 @@ npm run ios:dev
 ## Project Structure:
 ```
 src/
-├── api/            # Axios instances and global API client configurations
+├── api/            # API instances and global API client configurations
 ├── components/     # Shared UI atoms (Buttons, Inputs, Cards, Modals)
 ├── modules/        # Main business logic partitioned by feature
 ├── navigation/     # Navigation stacks and type definitions

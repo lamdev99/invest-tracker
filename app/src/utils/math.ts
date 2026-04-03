@@ -70,3 +70,21 @@ export const calculatePnL = (
 ): Big => {
   return new Big(currentPrice).minus(purchasePrice).times(quantity);
 };
+/**
+ * Calculate the percentage of a value relative to a total.
+ */
+export const calculateAllocationPercent = (
+  classValue: number | string | Big,
+  total: number | string | Big
+): Big => {
+  const t = new Big(total);
+  if (t.eq(0)) return new Big(0);
+  return new Big(classValue).div(t).times(100);
+};
+
+/**
+ * Aggregates multiple Big values into a single sum.
+ */
+export const sumBigs = (values: (number | string | Big)[]): Big => {
+  return values.reduce((acc: Big, val) => acc.plus(new Big(val)), new Big(0));
+};

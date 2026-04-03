@@ -30,12 +30,44 @@
 
 ## 📊 Module 1 — Portfolio Dashboard
 
-- [ ] Design dashboard screen layout (chart + asset breakdown + recommendations strip)
-- [ ] Implement total portfolio value calculation (sum all assets in VND)
-- [ ] Implement asset class breakdown chart (pie/donut)
-- [ ] Implement profit/loss summary (total + per class)
-- [ ] Implement "Quick Add" FAB (floating action button) routing to instrument forms
-- [ ] Connect dashboard to local data store (reactive updates)
+### Data Layer
+- [x] Define `PortfolioSummary` type: `{ totalValue: Big; byClass: { savings: Big; stocks: Big; gold: Big }; pnl: Big; pnlPercent: Big }`
+- [x] Implement `calculatePortfolioSummary(deposits[], stocks[], golds[])` in `src/utils/math.ts` using `big.js`
+- [x] Implement `calculateAllocationPercent(classValue: Big, total: Big): Big` helper in `src/utils/math.ts`
+
+### State (Zustand)
+- [x] Create `src/store/useDashboardStore.ts` with state: `{ summary: PortfolioSummary | null; isLoading: boolean; lastUpdated: string | null }`
+- [x] Add `refreshDashboard()` action that aggregates data from all module stores and recalculates summary
+
+### Data Fetching (TanStack Query)
+- [x] Create `src/modules/dashboard/hooks/useDashboardSummary.ts` — React Query hook that reads local SQLite and returns `PortfolioSummary`
+- [x] Ensure hook gracefully returns cached data when offline (`staleTime: Infinity` when offline)
+
+### UI — Components
+- [x] Create `src/components/Card.tsx` — reusable surface card with shadow and border-radius
+- [x] Create `src/modules/dashboard/components/TotalValueCard.tsx` — displays masked/unmasked total VND value (Eye icon toggle — per `rules.md §4`)
+- [x] Create `src/modules/dashboard/components/AllocationChart.tsx` — pie/donut chart (savings / stocks / gold) using `react-native-svg` or equivalent; colors from `theme/colors.ts`
+- [x] Create `src/modules/dashboard/components/AssetClassRow.tsx` — single row: icon, label, VND value, P&L badge (green/red)
+- [x] Create `src/modules/dashboard/components/PnLSummaryCard.tsx` — overall P&L amount + percentage in VND format `1.000.000,00`
+- [x] Create `src/modules/dashboard/components/RecommendationStrip.tsx` — horizontal scroll strip of up to 3 suggestion cards (placeholder for Module 6)
+- [x] Create `src/modules/dashboard/components/QuickAddFAB.tsx` — floating action button (+) with bottom-right anchor; opens a bottom sheet with 3 options: Savings / Stocks / Gold
+
+### UI — Screen
+- [x] Build `DashboardScreen.tsx` layout:
+  - [x] Header: app title + masked balance toggle
+  - [x] `TotalValueCard`
+  - [x] `AllocationChart` + 3× `AssetClassRow`
+  - [x] `PnLSummaryCard`
+  - [x] `RecommendationStrip` (placeholder)
+  - [x] `QuickAddFAB`
+- [x] Handle loading state (skeleton placeholder while data loads)
+- [x] Handle empty state (no data yet — show onboarding card: "Add your first investment")
+- [x] Refresh on pull-to-refresh
+
+### Integration
+- [x] Wire `useDashboardSummary` hook into `DashboardScreen`
+- [x] Display `lastUpdated` timestamp (formatted `DD/MM/YYYY HH:mm` — per `rules.md §2`)
+- [x] On `QuickAddFAB` press → navigate to respective module Add screen
 
 ---
 

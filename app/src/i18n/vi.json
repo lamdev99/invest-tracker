@@ -1,0 +1,13 @@
+{
+  "navigation": {
+    "dashboard": "Tổng quan",
+    "savings": "Tiết kiệm",
+    "stocks": "Cổ phiếu",
+    "gold": "Vàng"
+  },
+  "dashboard": {
+    "totalValue": "Tổng giá trị tài sản",
+    "profit": "Lợi nhuận",
+    "lastUpdated": "Cập nhật lần cuối: {{time}}"
+  }
+}

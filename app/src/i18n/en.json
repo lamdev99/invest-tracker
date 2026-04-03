@@ -1,0 +1,13 @@
+{
+  "navigation": {
+    "dashboard": "Dashboard",
+    "savings": "Savings",
+    "stocks": "Stocks",
+    "gold": "Gold"
+  },
+  "dashboard": {
+    "totalValue": "Total Portfolio Value",
+    "profit": "Profit/Loss",
+    "lastUpdated": "Last Update: {{time}}"
+  }
+}

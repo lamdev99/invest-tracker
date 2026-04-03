@@ -8,13 +8,13 @@
 ## 🏗️ Project Setup
 
 ### Mobile App (React Native)
-- [ ] Initialize React Native project (Expo or bare RN — TBD)
-- [ ] Set up folder structure: `src/modules/`, `src/components/`, `src/services/`, `src/store/`
-- [ ] Configure navigation library (React Navigation)
-- [ ] Set up local database (SQLite — library TBD)
-- [ ] Set up state management (Zustand / Redux Toolkit — TBD)
-- [ ] Configure i18n (Vietnamese + English)
-- [ ] Set up linting and formatting (ESLint, Prettier)
+- [x] Initialize React Native project (Expo or bare RN — TBD)
+- [x] Set up folder structure: `src/modules/`, `src/components/`, `src/services/`, `src/store/`
+- [x] Configure navigation library (React Navigation)
+- [x] Set up local database (SQLite — library TBD)
+- [x] Set up state management (Zustand / Redux Toolkit — TBD)
+- [x] Configure i18n (Vietnamese + English)
+- [x] Set up linting and formatting (ESLint, Prettier)
 - [x] Set up environment config (dev/staging/prod API URLs)
 
 ### Backend (Python)

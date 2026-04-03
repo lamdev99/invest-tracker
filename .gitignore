@@ -2,3 +2,6 @@
 /skills
 /app/node_modules
 /design
+/app/.env.development
+/app/.env.production
+/app/.env.staging

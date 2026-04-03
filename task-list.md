@@ -15,7 +15,7 @@
 - [ ] Set up state management (Zustand / Redux Toolkit — TBD)
 - [ ] Configure i18n (Vietnamese + English)
 - [ ] Set up linting and formatting (ESLint, Prettier)
-- [ ] Set up environment config (dev/staging/prod API URLs)
+- [x] Set up environment config (dev/staging/prod API URLs)
 
 ### Backend (Python)
 - [ ] Initialize Python project (FastAPI or Django — TBD by developer)

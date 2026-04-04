@@ -1,27 +1,71 @@
-import axios from 'axios';
+const BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
 
-const apiClient = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000',
-  timeout: 10000,
-  headers: {
+// Store for the auth token — set this when the user logs in
+let authToken: string | null = null;
+
+export const setAuthToken = (token: string | null): void => {
+  authToken = token;
+};
+
+interface RequestOptions extends RequestInit {
+  timeout?: number;
+}
+
+const request = async <T>(
+  endpoint: string,
+  options: RequestOptions = {}
+): Promise<T> => {
+  const { timeout = 10000, headers, ...rest } = options;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+
+  const mergedHeaders: HeadersInit = {
     'Content-Type': 'application/json',
-  },
-});
+    ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+    ...(headers as Record<string, string>),
+  };
 
-apiClient.interceptors.request.use(
-  async (config) => {
-    // Add auth token if available in the future
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+  try {
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      ...rest,
+      headers: mergedHeaders,
+      signal: controller.signal,
+    });
 
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error('API Error:', error.response?.data || error.message);
-    return Promise.reject(error);
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error('API Error:', response.status, errorBody);
+      throw new Error(`HTTP ${response.status}: ${errorBody}`);
+    }
+
+    return response.json() as Promise<T>;
+  } finally {
+    clearTimeout(timer);
   }
-);
+};
+
+const apiClient = {
+  get: <T>(endpoint: string, options?: RequestOptions) =>
+    request<T>(endpoint, { method: 'GET', ...options }),
+
+  post: <T>(endpoint: string, body: unknown, options?: RequestOptions) =>
+    request<T>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      ...options,
+    }),
+
+  put: <T>(endpoint: string, body: unknown, options?: RequestOptions) =>
+    request<T>(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+      ...options,
+    }),
+
+  delete: <T>(endpoint: string, options?: RequestOptions) =>
+    request<T>(endpoint, { method: 'DELETE', ...options }),
+};
 
 export default apiClient;

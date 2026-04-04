@@ -88,3 +88,90 @@ export const calculateAllocationPercent = (
 export const sumBigs = (values: (number | string | Big)[]): Big => {
   return values.reduce((acc: Big, val) => acc.plus(new Big(val)), new Big(0));
 };
+/**
+ * Calculate simple interest for a deposit: P * r * (termMonths / 12)
+ * Uses Round Half Up (Big.RM = 1)
+ */
+export const calculateSimpleInterestForDeposit = (
+  principal: number | string | Big,
+  annualRate: number | string | Big,
+  termMonths: number
+): Big => {
+  const P = new Big(principal);
+  const r = new Big(annualRate);
+  const t = new Big(termMonths).div(12);
+
+  return P.times(r).times(t).round(2, 1); // 1 is Round Half Up
+};
+
+/**
+ * Calculate compound interest for a deposit: P * (1 + r/n)^(n * t)
+ * where t = termMonths / 12 and n = compoundFrequency
+ * Uses Round Half Up (Big.RM = 1)
+ */
+export const calculateCompoundInterestForDeposit = (
+  principal: number | string | Big,
+  annualRate: number | string | Big,
+  termMonths: number,
+  compoundFrequency: number
+): Big => {
+  const P = new Big(principal);
+  const r = new Big(annualRate);
+  const n = new Big(compoundFrequency);
+  const t = new Big(termMonths).div(12);
+
+  const base = new Big(1).plus(r.div(n));
+  const exponent = n.times(t).toNumber();
+  
+  // Power calculation with integer fallback where possible
+  const power = base.pow(Math.floor(exponent));
+  
+  return P.times(power).round(2, 1);
+};
+import { Deposit } from '../modules/savings/types';
+
+/**
+ * Dispatches to simple or compound interest calculation based on deposit type.
+ * Returns interest earned "to date" or at full maturity.
+ */
+export const calculateInterestEarned = (deposit: Deposit, asOfDate: Date = new Date()): Big => {
+  const start = new Date(deposit.startDate);
+  const maturity = new Date(deposit.maturityDate);
+  const now = asOfDate > maturity ? maturity : asOfDate;
+  
+  if (now < start) return new Big(0);
+
+  const diffTime = now.getTime() - start.getTime();
+  const monthsElapsed = diffTime / (1000 * 60 * 60 * 24 * 30.44); // Approx months
+
+  if (deposit.interestType === 'SIMPLE') {
+    return calculateSimpleInterestForDeposit(
+      deposit.principal,
+      deposit.annualRate,
+      monthsElapsed
+    );
+  } else {
+    return calculateCompoundInterestForDeposit(
+      deposit.principal,
+      deposit.annualRate,
+      monthsElapsed,
+      deposit.compoundFrequency || 12
+    );
+  }
+};
+
+/**
+ * Calculate total value at maturity (Principal + Total Interest)
+ */
+export const calculateMaturityValue = (deposit: Deposit): Big => {
+  const interest = deposit.interestType === 'SIMPLE'
+    ? calculateSimpleInterestForDeposit(deposit.principal, deposit.annualRate, deposit.termMonths)
+    : calculateCompoundInterestForDeposit(
+        deposit.principal, 
+        deposit.annualRate, 
+        deposit.termMonths, 
+        deposit.compoundFrequency || 12
+      );
+  
+  return new Big(deposit.principal).plus(interest);
+};

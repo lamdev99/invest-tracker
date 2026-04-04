@@ -28,3 +28,18 @@ export const getDaysRemaining = (targetDate: Date | string | number): number => 
   
   return diffDays > 0 ? diffDays : 0;
 };
+/**
+ * Add months to a date string (YYYY-MM-DD) and return YYYY-MM-DD.
+ */
+export const addMonthsToDate = (dateStr: string, months: number): string => {
+  const d = new Date(dateStr);
+  d.setMonth(d.getMonth() + months);
+  return d.toISOString().split('T')[0];
+};
+
+/**
+ * Alias for getDaysRemaining to match task naming.
+ */
+export const getDaysToMaturity = (maturityDate: string): number => {
+  return getDaysRemaining(maturityDate);
+};

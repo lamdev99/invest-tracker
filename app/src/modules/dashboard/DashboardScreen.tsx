@@ -20,7 +20,7 @@ import { RecommendationStrip } from './components/RecommendationStrip';
 import { QuickAddFAB } from './components/QuickAddFAB';
 import { formatDate } from '../../utils/date';
 
-export const DashboardScreen = () => {
+export const DashboardScreen = ({ navigation }: any) => {
   const { t } = useTranslation();
   const { summary, isLoading, refreshDashboard } = useDashboardStore();
   const [refreshing, setRefreshing] = useState(false);
@@ -92,7 +92,12 @@ export const DashboardScreen = () => {
           </View>
         </ScrollView>
 
-        <QuickAddFAB onPress={() => console.log('Quick Add pressed')} />
+        <QuickAddFAB onPress={() => {
+          // @ts-ignore - navigation type
+          navigation.navigate('SavingsTab', { 
+            screen: 'AddEditDeposit' 
+          });
+        }} />
       </View>
     </SafeAreaView>
   );

@@ -1,13 +1,70 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useMemo } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  SafeAreaView,
+} from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
+import { spacing } from '../../theme/spacing';
+import { useDeposits } from './hooks/useDeposits';
+import { DepositCard } from './components/DepositCard';
+import { formatVND, sumBigs } from '../../utils/math';
+import Big from 'big.js';
 
-export const SavingsScreen = () => {
+export const SavingsScreen = ({ navigation }: any) => {
+  const { t } = useTranslation();
+  const { data: deposits, isLoading, refetch } = useDeposits();
+
+  const totalPrincipal = useMemo(() => {
+    if (!deposits) return new Big(0);
+    return sumBigs(deposits.map((d) => d.principal));
+  }, [deposits]);
+
+  const handlePress = (id: string) => {
+    navigation.navigate('DepositDetail', { depositId: id });
+  };
+
+  if (isLoading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <Text style={typography.h2}>Savings</Text>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={deposits}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContent}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryLabel}>Total Savings</Text>
+              <Text style={styles.summaryValue}>{formatVND(totalPrincipal)}</Text>
+            </View>
+            <Text style={styles.sectionTitle}>Your Deposits</Text>
+          </View>
+        }
+        renderItem={({ item }) => (
+          <DepositCard deposit={item} onPress={handlePress} />
+        )}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No deposits yet.</Text>
+            <Text style={styles.emptySubText}>Tap + on Dashboard to add one.</Text>
+          </View>
+        }
+        onRefresh={refetch}
+        refreshing={isLoading}
+      />
+    </SafeAreaView>
   );
 };
 
@@ -15,7 +72,48 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  center: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  listContent: {
+    padding: spacing.lg,
+  },
+  header: {
+    marginBottom: spacing.lg,
+  },
+  summaryCard: {
+    backgroundColor: colors.primary,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 24,
+  },
+  summaryLabel: {
+    ...typography.caption,
+    color: 'rgba(255,255,255,0.8)',
+    marginBottom: 4,
+  },
+  summaryValue: {
+    ...typography.h2,
+    color: colors.white,
+  },
+  sectionTitle: {
+    ...typography.h3,
+    color: colors.text,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    marginTop: 60,
+  },
+  emptyText: {
+    ...typography.bodyBold,
+    color: colors.textSecondary,
+  },
+  emptySubText: {
+    ...typography.small,
+    color: colors.textSecondary,
+    marginTop: 4,
   },
 });

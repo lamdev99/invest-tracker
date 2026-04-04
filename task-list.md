@@ -74,21 +74,98 @@
 ## 🏦 Module 2 — Bank Savings Deposits
 
 ### Data Layer
-- [ ] Define `Deposit` schema (bank name, amount, rate, term, start date, maturity date, interest type)
-- [ ] Implement CRUD operations for Deposit (local DB)
-- [ ] Implement simple interest calculation: `P × r × t`
-- [ ] Implement compound interest calculation: `P × (1 + r/n)^(n×t)`
-- [ ] Implement "interest earned to date" calculation
-- [ ] Implement "days to maturity" calculation
+- [x] Define `Deposit` schema (bank name, amount, rate, term, start date, maturity date, interest type)
+- [x] Implement CRUD operations for Deposit (local DB)
+- [x] In `src/utils/math.ts`, add `calculateSimpleInterestForDeposit(principal: string, annualRate: string, termMonths: number): Big`
+  - Formula: `P × r × (termMonths / 12)` using `big.js`
+  - Use `Big.RM = 1` (Round Half Up) as per `rules.md §1`
+- [x] In `src/utils/math.ts`, add `calculateCompoundInterestForDeposit(principal: string, annualRate: string, termMonths: number, compoundFrequency: number): Big`
+  - Formula: `P × (1 + r/n)^(n × t)` where `t = termMonths / 12`
+  - Use `Big.RM = 1` (Round Half Up) per `rules.md §1`
+- [x] In `src/utils/math.ts`, add `calculateInterestEarned(deposit: Deposit, asOfDate?: Date): Big`
+  - Dispatches to simple/compound based on `deposit.interestType`
+  - `asOfDate` defaults to today — used to show interest earned "to date" (not at full maturity)
+  - Clamp `asOfDate` to `maturityDate` if already past
+- [x] In `src/utils/math.ts`, add `calculateMaturityValue(deposit: Deposit): Big`
+  - Returns `principal + interest at full maturity`
+- [x] In `src/utils/date.ts`, add `getDaysToMaturity(maturityDate: string): number`
+  - Returns max(0, days remaining) — never shows negative days
+- [x] In `src/utils/date.ts`, add `addMonthsToDate(date: string, months: number): string`
+  - Used to auto-compute `maturityDate` from startDate + termMonths
 
-### UI
-- [ ] Deposit list screen (sorted by maturity date)
-- [ ] Deposit detail screen
-- [ ] Add/Edit deposit form with validation
-- [ ] Delete deposit (with confirmation)
-- [ ] Maturity countdown badge per deposit card
+### Data Layer — SQLite Schema & CRUD
+- [x] Define `Deposit` TypeScript interface in `src/modules/savings/types.ts`:
+  - `id`, `bankName`, `accountLabel?`, `principal` (string), `annualRate` (string), `termMonths`, `startDate`, `maturityDate`, `interestType: 'SIMPLE' | 'COMPOUND'`, `compoundFrequency?`, `status: 'ACTIVE' | 'MATURED' | 'WITHDRAWN'`, `notes?`, `createdAt`, `updatedAt`
+- [x] Create `src/modules/savings/db/schema.ts` — `CREATE TABLE IF NOT EXISTS deposits (...)` DDL
+- [x] Create `src/modules/savings/db/migration.ts` — run schema setup on first app launch via `expo-sqlite`
+- [x] Create `src/modules/savings/db/repository.ts` with exported functions:
+  - [x] `getAllDeposits(): Promise<Deposit[]>` — ORDER BY maturityDate ASC
+  - [x] `getDepositById(id: string): Promise<Deposit | null>`
+  - [x] `createDeposit(data): Promise<Deposit>` — generates UUID, sets `createdAt`/`updatedAt`
+  - [x] `updateDeposit(id: string, data: Partial<Deposit>): Promise<Deposit>` — updates `updatedAt`
+  - [x] `deleteDeposit(id: string): Promise<void>`
 
+### State (Zustand)
+- [x] Create `src/store/useSavingsStore.ts` with:
+  - `deposits: Deposit[]`, `isLoading: boolean`
+  - Actions: `loadDeposits()`, `addDeposit(data)`, `updateDeposit(id, data)`, `deleteDeposit(id)`
+  - Each action calls the repository then refreshes the local `deposits` array
+
+### Data Fetching Hooks (TanStack Query + convention.md)
+- [x] Create `src/modules/savings/hooks/useDeposits.ts` — `useQuery` that calls `getAllDeposits()`, with `staleTime` set for offline use
+- [x] Create `src/modules/savings/hooks/useSavingsMutations.ts` — `useMutation` hooks for create, update, delete; invalidate `deposits` query key on success
+
+### UI — Components
+- [x] Create `src/modules/savings/components/MaturityBadge.tsx`:
+  - Accepts `daysRemaining: number`
+  - Green (`>30d`), Amber (`7–30d`), Red (`<7d`), Grey (`MATURED`)
+- [x] Create `src/modules/savings/components/DepositCard.tsx`:
+  - Bank name + account label
+  - Principal formatted via `formatVND` (VND)
+  - Interest earned to date via `calculateInterestEarned(deposit)`
+  - `MaturityBadge` with days remaining
+  - Status pill: `ACTIVE` / `MATURED` / `WITHDRAWN`
+  - `memo`-wrapped per `convention.md §3`
+- [x] Create `src/modules/savings/components/DepositForm.tsx`:
+  - Fields: Bank Name (text), Label (optional), Principal (numeric input), Annual Rate % (numeric), Term in months (numeric), Start Date (date picker — displayed in `DD/MM/YYYY`), Interest Type toggle (Simple / Compound), Compound Frequency (hidden unless Compound), Notes
+  - `maturityDate` auto-computed and displayed (read-only) when startDate + termMonths are filled
+  - Validation: all required fields, rate 0–100%, term > 0
+  - On change: all monetary values formatted with `formatVND`
+
+### UI — Screens
+- [x] Build `SavingsScreen.tsx`:
+  - Uses `useDeposits` hook
+  - Header: total savings value (VND) + total interest earned (both masked if balance hidden)
+  - Empty state with "No deposits yet — tap + to add"
+  - `FlatList` of `DepositCard` sorted by maturity date ASC
+  - Pull-to-refresh triggers `useDeposits` refetch
+- [x] Build `DepositDetailScreen.tsx`:
+  - All deposit fields displayed in `DD/MM/YYYY` and VND format
+  - Interest earned to date + full maturity value
+  - Progress bar: `startDate → today → maturityDate`
+  - Edit button → navigates to `AddEditDepositScreen` with `depositId`
+  - Delete button → confirmation alert → `deleteDeposit` mutation
+- [x] Build `AddEditDepositScreen.tsx`:
+  - `depositId?` route param: if present → prefill form for edit mode; else → add mode
+  - Uses `DepositForm`
+  - Save → `createDeposit` or `updateDeposit` mutation → navigate back
+
+### Navigation
+- [x] Register `DepositDetailScreen` and `AddEditDepositScreen` in a Savings Native Stack under `SavingsScreen`
+- [x] Wire `QuickAddFAB` on `DashboardScreen` → navigate to `AddEditDepositScreen` (add mode) for Savings
 ---
+
+## 🎨 Module 2 — Savings UI Enhancements
+
+- [x] Fetch and save local bank list from `https://api.vietqr.io/v2/banks` to `src/assets/data/banks.json`
+- [x] Implement `BankPicker` component (searchable dropdown/modal)
+- [x] Integrate custom `DateTimePicker` for date selection (fallback for native lib)
+- [x] Update `DepositForm.tsx`:
+  - Replace Bank Name `TextInput` with `BankPicker`
+  - Replace Start Date `TextInput` with `DateTimePicker`
+  - Maintain auto-calculation logic for `maturityDate`
+- [x] Verify UI responsiveness and accessibility
+
 
 ## 📈 Module 3 — Stocks / ETFs
 

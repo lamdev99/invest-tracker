@@ -12,8 +12,10 @@ import { useTranslation } from 'react-i18next';
 import { colors } from '../../../theme/colors';
 import { typography } from '../../../theme/typography';
 import { spacing } from '../../../theme/spacing';
-import { addMonthsToDate, formatDate } from '../../../utils/date';
+import { addMonthsToDate, formatDate, getDaysToMaturity } from '../../../utils/date';
 import { Deposit, InterestType } from '../types';
+import { BankPicker } from './BankPicker';
+import { CustomDatePicker } from './CustomDatePicker';
 
 interface DepositFormProps {
   initialData?: Partial<Deposit>;
@@ -67,11 +69,9 @@ export const DepositForm = ({ initialData, onSubmit, isLoading }: DepositFormPro
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.section}>
         <Text style={styles.label}>Bank Name *</Text>
-        <TextInput
-          style={styles.input}
+        <BankPicker
           value={bankName}
-          onChangeText={setBankName}
-          placeholder="e.g. Vietcombank"
+          onChange={setBankName}
         />
       </View>
 
@@ -81,7 +81,7 @@ export const DepositForm = ({ initialData, onSubmit, isLoading }: DepositFormPro
           style={styles.input}
           value={accountLabel}
           onChangeText={setAccountLabel}
-          placeholder="e.g. Savings 12M"
+          placeholder="e.g. My Savings 2024"
         />
       </View>
 
@@ -93,7 +93,7 @@ export const DepositForm = ({ initialData, onSubmit, isLoading }: DepositFormPro
             value={principal}
             onChangeText={setPrincipal}
             keyboardType="numeric"
-            placeholder="e.g. 100000000"
+            placeholder="e.g. 50000000"
           />
         </View>
         <View style={[styles.section, { flex: 1, marginLeft: 8 }]}>
@@ -101,11 +101,10 @@ export const DepositForm = ({ initialData, onSubmit, isLoading }: DepositFormPro
           <TextInput
             style={styles.input}
             value={annualRate}
-            onChangeText={(val) => setAnnualRate(val)}
+            onChangeText={setAnnualRate}
             keyboardType="numeric"
             placeholder="e.g. 0.065"
           />
-          <Text style={styles.hint}>e.g. 0.065 for 6.5%</Text>
         </View>
       </View>
 
@@ -121,11 +120,10 @@ export const DepositForm = ({ initialData, onSubmit, isLoading }: DepositFormPro
         </View>
         <View style={[styles.section, { flex: 1, marginLeft: 8 }]}>
           <Text style={styles.label}>Start Date *</Text>
-          <TextInput
-            style={styles.input}
+          <CustomDatePicker
             value={startDate}
-            onChangeText={setStartDate}
-            placeholder="YYYY-MM-DD"
+            onChange={setStartDate}
+            label="Select Deposit Start Date"
           />
         </View>
       </View>

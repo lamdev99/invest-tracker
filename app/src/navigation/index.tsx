@@ -4,14 +4,50 @@ import { NavigationContainer } from '@react-navigation/native';
 import { Home, PiggyBank, TrendingUp, Coins } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 // Placeholder Screens
 import { DashboardScreen } from '../modules/dashboard/DashboardScreen';
 import { SavingsScreen } from '../modules/savings/SavingsScreen';
+import { DepositDetailScreen } from '../modules/savings/DepositDetailScreen';
+import { AddEditDepositScreen } from '../modules/savings/AddEditDepositScreen';
 import { StocksScreen } from '../modules/stocks/StocksScreen';
 import { GoldScreen } from '../modules/gold/GoldScreen';
 import { colors } from '../theme/colors';
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
+
+const SavingsStack = () => {
+  const { t } = useTranslation();
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.surface },
+        headerTitleStyle: { color: colors.text },
+        headerTintColor: colors.primary,
+      }}
+    >
+      <Stack.Screen 
+        name="SavingsList" 
+        component={SavingsScreen} 
+        options={{ title: t('navigation.savings') }} 
+      />
+      <Stack.Screen 
+        name="DepositDetail" 
+        component={DepositDetailScreen} 
+        options={{ title: 'Deposit Details' }} 
+      />
+      <Stack.Screen 
+        name="AddEditDeposit" 
+        component={AddEditDepositScreen} 
+        options={({ route }: any) => ({ 
+          title: route.params?.depositId ? 'Edit Deposit' : 'Add Deposit' 
+        })} 
+      />
+    </Stack.Navigator>
+  );
+};
 
 export const RootNavigation = () => {
   const { t } = useTranslation();
@@ -22,40 +58,43 @@ export const RootNavigation = () => {
         screenOptions={{
           tabBarActiveTintColor: colors.primary,
           tabBarInactiveTintColor: colors.secondary,
-          headerStyle: { backgroundColor: colors.surface },
-          headerTitleStyle: { color: colors.text },
+          headerShown: false,
         }}
       >
         <Tab.Screen
-          name="Dashboard"
+          name="DashboardTab"
           component={DashboardScreen}
           options={{
             title: t('navigation.dashboard'),
             tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
+            headerShown: true, // Show header for dashboard
+            headerTitle: 'InvestTracker',
           }}
         />
         <Tab.Screen
-          name="Savings"
-          component={SavingsScreen}
+          name="SavingsTab"
+          component={SavingsStack}
           options={{
             title: t('navigation.savings'),
             tabBarIcon: ({ color, size }) => <PiggyBank color={color} size={size} />,
           }}
         />
         <Tab.Screen
-          name="Stocks"
+          name="StocksTab"
           component={StocksScreen}
           options={{
             title: t('navigation.stocks'),
             tabBarIcon: ({ color, size }) => <TrendingUp color={color} size={size} />,
+            headerShown: true,
           }}
         />
         <Tab.Screen
-          name="Gold"
+          name="GoldTab"
           component={GoldScreen}
           options={{
             title: t('navigation.gold'),
             tabBarIcon: ({ color, size }) => <Coins color={color} size={size} />,
+            headerShown: true,
           }}
         />
       </Tab.Navigator>

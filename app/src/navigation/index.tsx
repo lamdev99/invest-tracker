@@ -12,6 +12,8 @@ import { SavingsScreen } from '../modules/savings/SavingsScreen';
 import { DepositDetailScreen } from '../modules/savings/DepositDetailScreen';
 import { AddEditDepositScreen } from '../modules/savings/AddEditDepositScreen';
 import { StocksScreen } from '../modules/stocks/StocksScreen';
+import { StockDetailScreen } from '../modules/stocks/StockDetailScreen';
+import { AddEditStockScreen } from '../modules/stocks/AddEditStockScreen';
 import { GoldScreen } from '../modules/gold/GoldScreen';
 import { GoldDetailScreen } from '../modules/gold/GoldDetailScreen';
 import { AddEditGoldScreen } from '../modules/gold/AddEditGoldScreen';
@@ -51,7 +53,39 @@ const SavingsStack = () => {
   );
 };
 
+const StocksStack = () => {
+  const { t } = useTranslation();
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.surface },
+        headerTitleStyle: { color: colors.text },
+        headerTintColor: colors.primary,
+      }}
+    >
+      <Stack.Screen 
+        name="StockList" 
+        component={StocksScreen} 
+        options={{ title: t('navigation.stocks') }} 
+      />
+      <Stack.Screen 
+        name="StockDetail" 
+        component={StockDetailScreen} 
+        options={{ title: 'Stock Details' }} 
+      />
+      <Stack.Screen 
+        name="AddEditStock" 
+        component={AddEditStockScreen} 
+        options={({ route }: any) => ({ 
+          title: route.params?.positionId ? 'Edit Position' : 'Add Position' 
+        })} 
+      />
+    </Stack.Navigator>
+  );
+};
+
 const GoldStack = () => {
+
   const { t } = useTranslation();
   return (
     <Stack.Navigator
@@ -114,11 +148,10 @@ export const RootNavigation = () => {
         />
         <Tab.Screen
           name="StocksTab"
-          component={StocksScreen}
+          component={StocksStack}
           options={{
             title: t('navigation.stocks'),
             tabBarIcon: ({ color, size }) => <TrendingUp color={color} size={size} />,
-            headerShown: true,
           }}
         />
         <Tab.Screen

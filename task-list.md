@@ -177,12 +177,34 @@
 - [ ] Implement price cache with timestamp (last updated)
 - [ ] Implement manual price override
 
-### UI
-- [ ] Stock positions list screen
-- [ ] Position detail screen with P&L breakdown
-- [ ] Add/Edit position form with validation
-- [ ] Delete position (with confirmation)
-- [ ] Price refresh button + last-updated label
+### UI — Components
+- [x] Create `src/modules/stocks/components/StockPriceCard.tsx`:
+  - Display VNINDEX and tracked ticker prices
+  - Manual refresh with loading indicator
+- [x] Create `src/modules/stocks/components/StockPositionCard.tsx`:
+  - Ticker, avg cost, current value, unrealized P&L
+  - Color-coded badges for gains/losses
+  - Performance-optimized with `memo`
+- [x] Create `src/modules/stocks/components/StockPositionForm.tsx`:
+  - Fields: Ticker, Exchange, Shares, Price, Date
+  - Validation for ticker format and numeric entries
+
+### UI — Screens
+- [x] Build `StockScreen.tsx`:
+  - Portfolio summary header (Total Value & P&L)
+  - Searchable list of positions
+  - Pull-to-refresh integration
+- [x] Build `StockDetailScreen.tsx`:
+  - Deep-dive metrics: Cost vs Market, Break-even point
+  - Edit and Delete/Sell actions
+- [x] Build `AddEditStockScreen.tsx`:
+  - Host for `StockPositionForm`
+  - Logic for Add vs Edit modes
+
+### Navigation & Integration
+- [x] Register screens in a `StocksStack` in `navigation/index.tsx`
+- [x] Wire Dashboard FAB to navigate to `AddEditStockScreen` (Stock mode)
+- [ ] Ensure `refreshDashboard()` in `useDashboardStore` includes stock data
 
 ---
 

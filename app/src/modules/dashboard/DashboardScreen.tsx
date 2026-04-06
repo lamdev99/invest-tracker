@@ -108,14 +108,14 @@ export const DashboardScreen = ({ navigation }: any) => {
                 onPress: () => navigation.navigate('GoldTab', { screen: 'AddEditGold' }),
               },
               {
-                text: 'Stocks (Coming Soon)',
-                onPress: () => {},
-                style: 'cancel',
+                text: 'Stock Position',
+                onPress: () => navigation.navigate('StocksTab', { screen: 'AddEditStock' }),
               },
               { text: 'Cancel', style: 'cancel' },
             ]
           );
         }} />
+
 
       </View>
     </SafeAreaView>

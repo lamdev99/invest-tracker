@@ -6,7 +6,9 @@ import {
   RefreshControl,
   Text,
   SafeAreaView,
+  Alert,
 } from 'react-native';
+
 import { useTranslation } from 'react-i18next';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
@@ -93,11 +95,28 @@ export const DashboardScreen = ({ navigation }: any) => {
         </ScrollView>
 
         <QuickAddFAB onPress={() => {
-          // @ts-ignore - navigation type
-          navigation.navigate('SavingsTab', { 
-            screen: 'AddEditDeposit' 
-          });
+          Alert.alert(
+            'Add Investment',
+            'Select the type of investment you want to add:',
+            [
+              {
+                text: 'Bank Savings',
+                onPress: () => navigation.navigate('SavingsTab', { screen: 'AddEditDeposit' }),
+              },
+              {
+                text: 'Gold Holding',
+                onPress: () => navigation.navigate('GoldTab', { screen: 'AddEditGold' }),
+              },
+              {
+                text: 'Stocks (Coming Soon)',
+                onPress: () => {},
+                style: 'cancel',
+              },
+              { text: 'Cancel', style: 'cancel' },
+            ]
+          );
         }} />
+
       </View>
     </SafeAreaView>
   );

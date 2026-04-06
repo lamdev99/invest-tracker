@@ -13,6 +13,8 @@ import { DepositDetailScreen } from '../modules/savings/DepositDetailScreen';
 import { AddEditDepositScreen } from '../modules/savings/AddEditDepositScreen';
 import { StocksScreen } from '../modules/stocks/StocksScreen';
 import { GoldScreen } from '../modules/gold/GoldScreen';
+import { GoldDetailScreen } from '../modules/gold/GoldDetailScreen';
+import { AddEditGoldScreen } from '../modules/gold/AddEditGoldScreen';
 import { colors } from '../theme/colors';
 
 const Tab = createBottomTabNavigator();
@@ -43,6 +45,37 @@ const SavingsStack = () => {
         component={AddEditDepositScreen} 
         options={({ route }: any) => ({ 
           title: route.params?.depositId ? 'Edit Deposit' : 'Add Deposit' 
+        })} 
+      />
+    </Stack.Navigator>
+  );
+};
+
+const GoldStack = () => {
+  const { t } = useTranslation();
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.surface },
+        headerTitleStyle: { color: colors.text },
+        headerTintColor: colors.primary,
+      }}
+    >
+      <Stack.Screen 
+        name="GoldList" 
+        component={GoldScreen} 
+        options={{ title: t('navigation.gold') }} 
+      />
+      <Stack.Screen 
+        name="GoldDetail" 
+        component={GoldDetailScreen} 
+        options={{ title: 'Gold Details' }} 
+      />
+      <Stack.Screen 
+        name="AddEditGold" 
+        component={AddEditGoldScreen} 
+        options={({ route }: any) => ({ 
+          title: route.params?.holdingId ? 'Edit Gold Holding' : 'Add Gold Holding' 
         })} 
       />
     </Stack.Navigator>
@@ -90,11 +123,10 @@ export const RootNavigation = () => {
         />
         <Tab.Screen
           name="GoldTab"
-          component={GoldScreen}
+          component={GoldStack}
           options={{
             title: t('navigation.gold'),
             tabBarIcon: ({ color, size }) => <Coins color={color} size={size} />,
-            headerShown: true,
           }}
         />
       </Tab.Navigator>

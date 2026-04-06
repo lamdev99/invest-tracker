@@ -188,20 +188,59 @@
 
 ## 🥇 Module 4 — Gold
 
-### Data Layer
-- [ ] Define `GoldHolding` schema (type: SJC/999.9, weight, unit: tael/gram, purchase price, purchase date)
-- [ ] Implement CRUD operations for GoldHolding (local DB)
-- [ ] Implement unrealized P&L calculation
-- [ ] Implement SJC API price fetch
-- [ ] Implement price cache with timestamp
-- [ ] Implement manual price override
+### Data Layer — SQLite Schema & CRUD
+- [ ] Define `GoldHolding` interface in `src/modules/gold/types.ts`
+- [ ] Create `src/modules/gold/db/schema.ts` — `CREATE TABLE gold_holdings`
+- [ ] Create `src/modules/gold/db/repository.ts` with `getAllHoldings`, `createHolding`, `updateHolding`, `deleteHolding`
+- [ ] In `src/utils/math.ts`, add `calculateGoldPnL(holding: GoldHolding, currentPrice: Big): Big`
+- [ ] In `src/utils/math.ts`, add `calculateTotalGoldValue(holdings: GoldHolding[], prices: GoldPrice[]): Big`
 
-### UI
-- [ ] Gold holdings list screen
-- [ ] Holding detail screen with P&L
-- [ ] Add/edit holding form with validation
-- [ ] Delete holding (with confirmation)
-- [ ] Current gold price display card + last updated
+### State (Zustand)
+- [ ] Create `src/store/useGoldStore.ts` with:
+  - `holdings: GoldHolding[]`, `prices: GoldPrice[]`, `isLoading: boolean`
+  - Actions: `loadHoldings()`, `addHolding(data)`, `updateHolding(id, data)`, `deleteHolding(id)`, `refreshPrices()`
+  - Each CRUD action calls the repository then refreshes the store
+
+### Data Fetching Hooks (TanStack Query)
+- [ ] Create `src/modules/gold/hooks/useGoldHoldings.ts` — `useQuery` for all holdings
+- [ ] Create `src/modules/gold/hooks/useGoldPrice.ts` — `useQuery` for SJC/999.9 prices with offline fallback
+- [ ] Create `src/modules/gold/hooks/useGoldMutations.ts` — `useMutation` hooks for gold holding CRUD; invalidate `goldHoldings` query key on success
+
+### UI — Components
+- [x] Create `src/modules/gold/components/GoldPriceCard.tsx`:
+  - Display SJC buy/sell prices for SJC and 999.9
+  - "Last updated" timestamp (formatted `DD/MM/YYYY HH:mm`)
+  - Manual refresh button with loading state
+- [x] Create `src/modules/gold/components/GoldHoldingCard.tsx`:
+  - Gold type, weight (formatted with unit), purchase price (VND)
+  - Current value + unrealized P&L (amount + %) with color coding (green/red)
+  - `memo`-wrapped for performance
+- [x] Create `src/modules/gold/components/GoldHoldingForm.tsx`:
+  - Fields: Gold Type (Picker), Weight (Numeric), Unit (Tael/Gram), Purchase Price (Numeric), Purchase Date (DateTimePicker)
+  - Validation: all required, positive weight/price
+  - Format monetary values via `formatVND`
+
+### UI — Screens
+- [x] Build `GoldScreen.tsx`:
+  - Header: total gold value (VND) + total gold P&L (amount+%)
+  - Support masking via "Eye" icon (balance toggle)
+  - `GoldPriceCard` as top-level widget
+  - `FlatList` of `GoldHoldingCard` sorted by date DESC
+  - Pull-to-refresh to trigger `refreshPrices` and `loadHoldings`
+- [x] Build `GoldDetailScreen.tsx`:
+  - Detailed holding metrics: cost basis, current market value, total P&L
+  - Edit button → `AddEditGoldScreen`
+  - Delete button → Confirmation alert
+- [x] Build `AddEditGoldScreen.tsx`:
+  - `holdingId?` route param: add vs edit mode
+  - Uses `GoldHoldingForm`
+  - Save action → Mutation → navigate back
+
+### Navigation & Integration
+- [x] Register `GoldDetailScreen` and `AddEditGoldScreen` in a Gold Native Stack
+- [x] Wire `QuickAddFAB` from Dashboard → navigate to `AddEditGoldScreen` (Gold mode)
+- [x] Ensure `refreshDashboard()` in `useDashboardStore` includes gold data
+
 
 ---
 

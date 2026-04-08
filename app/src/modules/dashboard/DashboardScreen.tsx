@@ -5,14 +5,16 @@ import {
   ScrollView,
   RefreshControl,
   Text,
-  SafeAreaView,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 import { useTranslation } from 'react-i18next';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { spacing } from '../../theme/spacing';
+import { SyncStatusBanner } from '../../components/SyncStatusBanner';
 import { useDashboardStore } from '../../store/useDashboardStore';
 import { TotalValueCard } from './components/TotalValueCard';
 import { PnLSummaryCard } from './components/PnLSummaryCard';
@@ -24,7 +26,7 @@ import { formatDate } from '../../utils/date';
 
 export const DashboardScreen = ({ navigation }: any) => {
   const { t } = useTranslation();
-  const { summary, isLoading, refreshDashboard } = useDashboardStore();
+  const { summary, isLoading, syncErrors, refreshDashboard } = useDashboardStore();
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -37,6 +39,9 @@ export const DashboardScreen = ({ navigation }: any) => {
     setRefreshing(false);
   };
 
+  const hasError = syncErrors.gold || syncErrors.stocks;
+  const syncStatus = hasError ? 'error' : null;
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -47,7 +52,7 @@ export const DashboardScreen = ({ navigation }: any) => {
           }
         >
           <View style={styles.header}>
-            <Text style={typography.h1}>InvestTracker</Text>
+            <Text style={typography.h1}>{t('dashboard.title')}</Text>
             {summary && (
               <Text style={styles.lastUpdated}>
                 {t('dashboard.lastUpdated', {
@@ -57,21 +62,27 @@ export const DashboardScreen = ({ navigation }: any) => {
             )}
           </View>
 
+          <SyncStatusBanner 
+            status={syncStatus} 
+            message={syncErrors.gold || syncErrors.stocks || undefined}
+            lastUpdated={summary ? formatDate(summary.lastUpdated) : undefined}
+          />
+
           <TotalValueCard />
           <PnLSummaryCard />
           
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Portfolio Allocation</Text>
+            <Text style={styles.sectionTitle}>{t('dashboard.portfolioAllocation')}</Text>
             <AllocationChart />
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Insights & Tips</Text>
+            <Text style={styles.sectionTitle}>{t('dashboard.insightsTips')}</Text>
             <RecommendationStrip />
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Asset Breakdown</Text>
+            <Text style={styles.sectionTitle}>{t('dashboard.assetBreakdown')}</Text>
             {summary && (
               <View style={styles.list}>
                 <AssetClassRow
@@ -96,22 +107,22 @@ export const DashboardScreen = ({ navigation }: any) => {
 
         <QuickAddFAB onPress={() => {
           Alert.alert(
-            'Add Investment',
-            'Select the type of investment you want to add:',
+            t('common.addInvestment'),
+            t('common.addInvestmentSelect'),
             [
               {
-                text: 'Bank Savings',
+                text: t('savings.title'),
                 onPress: () => navigation.navigate('SavingsTab', { screen: 'AddEditDeposit' }),
               },
               {
-                text: 'Gold Holding',
+                text: t('gold.title'),
                 onPress: () => navigation.navigate('GoldTab', { screen: 'AddEditGold' }),
               },
               {
-                text: 'Stock Position',
+                text: t('stocks.title'),
                 onPress: () => navigation.navigate('StocksTab', { screen: 'AddEditStock' }),
               },
-              { text: 'Cancel', style: 'cancel' },
+              { text: t('common.cancel'), style: 'cancel' },
             ]
           );
         }} />

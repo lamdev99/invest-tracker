@@ -15,7 +15,11 @@ interface AssetClassRowProps {
   onPress?: () => void;
 }
 
+import { useTranslation } from 'react-i18next';
+
 export const AssetClassRow = ({ type, value, pnl, onPress }: AssetClassRowProps) => {
+  const { t } = useTranslation();
+
   const getIcon = () => {
     switch (type) {
       case 'SAVINGS':
@@ -29,9 +33,9 @@ export const AssetClassRow = ({ type, value, pnl, onPress }: AssetClassRowProps)
 
   const getLabel = () => {
     switch (type) {
-      case 'SAVINGS': return 'Savings';
-      case 'STOCKS': return 'Stocks';
-      case 'GOLD': return 'Gold';
+      case 'SAVINGS': return t('navigation.savings');
+      case 'STOCKS': return t('navigation.stocks');
+      case 'GOLD': return t('navigation.gold');
     }
   };
 

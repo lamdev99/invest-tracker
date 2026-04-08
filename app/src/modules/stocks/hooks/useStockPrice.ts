@@ -9,8 +9,11 @@ export const useStockPrices = (tickers: string[]) => {
     enabled: tickers.length > 0,
     refetchInterval: 60000, // Refresh every minute
     staleTime: 30000, // Data is fresh for 30s
+    retry: 3,
+    refetchOnWindowFocus: true,
   });
 };
+
 
 export const useStockPrice = (ticker: string) => {
   return useQuery<StockPrice | null>({

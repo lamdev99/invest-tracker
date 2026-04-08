@@ -5,9 +5,55 @@
     "stocks": "Cổ phiếu",
     "gold": "Vàng"
   },
+  "common": {
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "delete": "Xóa",
+    "edit": "Chỉnh sửa",
+    "add": "Thêm",
+    "loading": "Đang tải...",
+    "syncFailed": "Đồng bộ giá thất bại",
+    "syncStale": "Dữ liệu có thể đã cũ",
+    "lastSync": "Đồng bộ thành công lần cuối: {{time}}",
+    "justNow": "Vừa xong",
+    "addInvestment": "Thêm khoản đầu tư",
+    "addInvestmentSelect": "Chọn loại khoản đầu tư bạn muốn thêm:"
+  },
   "dashboard": {
-    "totalValue": "Tổng giá trị tài sản",
-    "profit": "Lợi nhuận",
-    "lastUpdated": "Cập nhật lần cuối: {{time}}"
+    "title": "InvestTracker",
+    "lastUpdated": "Dữ liệu tính đến {{time}}",
+    "portfolioAllocation": "Phân bổ danh mục",
+    "insightsTips": "Thông tin & Mẹo",
+    "assetBreakdown": "Chi tiết tài sản"
+  },
+  "savings": {
+    "title": "Sổ tiết kiệm",
+    "totalSavings": "Tổng tiền tiết kiệm",
+    "yourDeposits": "Sổ tiết kiệm của bạn",
+    "emptyState": "Chưa có sổ tiết kiệm nào.",
+    "emptyStateAction": "Chạm vào + trên Tổng quan để thêm mới."
+  },
+  "gold": {
+    "title": "Vàng",
+    "totalValue": "Tổng giá trị vàng",
+    "totalPnL": "Tổng Lãi/Lỗ",
+    "yourHoldings": "Số vàng đang giữ",
+    "emptyState": "Chưa có vàng.",
+    "emptyStateAction": "Chạm vào + trên Tổng quan để thêm mới."
+  },
+  "stocks": {
+    "title": "Cổ phiếu",
+    "totalValue": "Tổng giá trị cổ phiếu",
+    "overallPnL": "Tổng Lãi/Lỗ",
+    "yourPositions": "Danh mục cổ phiếu",
+    "emptyState": "Chưa có cổ phiếu nào.",
+    "emptyStateAction": "Chạm vào + để theo dõi cổ phiếu đầu tiên của bạn."
+  },
+  "units": {
+    "tael": "Lượng",
+    "gram": "Gram",
+    "mace": "Chỉ",
+    "chỉ": "Chỉ"
   }
 }
+

@@ -5,12 +5,14 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
-  SafeAreaView,
   RefreshControl,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { useTranslation } from 'react-i18next';
-import { Plus, Search } from 'lucide-react-native';
+import { Plus, Search, AlertTriangle } from 'lucide-react-native';
+
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { spacing } from '../../theme/spacing';
@@ -56,7 +58,7 @@ export const StocksScreen = ({ navigation }: any) => {
     return Array.from(new Set([...WATCHLIST, ...fromPositions]));
   }, [positions]);
 
-  const { data: prices = [], isLoading, refetch } = useStockPrices(tickerList);
+  const { data: prices = [], isLoading, refetch, isError } = useStockPrices(tickerList);
 
   const totalValue = useMemo(() => {
     return positions.reduce((acc, pos) => {
@@ -95,26 +97,33 @@ export const StocksScreen = ({ navigation }: any) => {
           <>
             <View style={styles.summaryCard}>
               <View>
-                <Text style={styles.summaryLabel}>Total Stock Value</Text>
+                <Text style={styles.summaryLabel}>{t('stocks.totalValue')}</Text>
                 <Text style={styles.summaryValue}>{formatVND(totalValue)}</Text>
               </View>
               <View style={styles.pnlContainer}>
-                <Text style={styles.summaryLabel}>Overall P&L</Text>
+                <Text style={styles.summaryLabel}>{t('stocks.overallPnL')}</Text>
                 <Text style={[styles.pnlValue, { color: totalPnL.gte(0) ? colors.success : colors.danger }]}>
                   {totalPnL.gt(0) && '+'}{formatVND(totalPnL)}
                 </Text>
               </View>
             </View>
 
+            {isError && (
+              <View style={styles.errorBanner}>
+                <AlertTriangle size={16} color={colors.danger} />
+                <Text style={styles.errorText}>{t('common.syncFailed')}</Text>
+              </View>
+            )}
+
             <StockPriceCard 
               prices={prices} 
-              lastUpdated="Just now" 
+              lastUpdated={t('common.justNow')} 
               onRefresh={onRefresh}
               isLoading={isLoading}
             />
 
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Your Positions</Text>
+              <Text style={styles.sectionTitle}>{t('stocks.yourPositions')}</Text>
               <TouchableOpacity onPress={() => navigation.navigate('AddEditStock')}>
                 <Plus size={20} color={colors.primary} />
               </TouchableOpacity>
@@ -130,8 +139,8 @@ export const StocksScreen = ({ navigation }: any) => {
         )}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No stocks yet.</Text>
-            <Text style={styles.emptySubText}>Tap + to track your first stock position.</Text>
+            <Text style={styles.emptyText}>{t('stocks.emptyState')}</Text>
+            <Text style={styles.emptySubText}>{t('stocks.emptyStateAction')}</Text>
           </View>
         }
         refreshControl={
@@ -178,6 +187,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
+  },
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.danger + '10',
+    padding: 12,
+    marginHorizontal: spacing.lg,
+    borderRadius: 12,
+    marginBottom: 16,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: colors.danger + '20',
+  },
+  errorText: {
+    ...typography.caption,
+    color: colors.danger,
+    fontWeight: '600',
   },
   sectionHeader: {
     flexDirection: 'row',

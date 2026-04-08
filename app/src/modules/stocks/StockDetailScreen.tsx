@@ -9,6 +9,9 @@ import {
   SafeAreaView,
   Platform,
 } from 'react-native';
+import { SafeAreaView as SafeAreaViewContext } from 'react-native-safe-area-context';
+
+
 
 import { 
   TrendingUp, 
@@ -97,8 +100,9 @@ export const StockDetailScreen = ({ route, navigation }: any) => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaViewContext style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
+
         <View style={styles.headerCard}>
           <View style={styles.tickerHeader}>
              <Text style={styles.tickerText}>{position.ticker}</Text>
@@ -156,9 +160,10 @@ export const StockDetailScreen = ({ route, navigation }: any) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </SafeAreaViewContext>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

@@ -7,6 +7,8 @@ export const useGoldPrice = () => {
     queryKey: ['goldPrices'],
     queryFn: fetchGoldPrices,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: 2,
+    retry: 3,
+    refetchOnWindowFocus: true,
   });
 };
+

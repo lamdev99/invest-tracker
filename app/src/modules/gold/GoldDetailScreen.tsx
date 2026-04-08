@@ -1,6 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { Edit2, Trash2, Calendar, Coins, Scale, Wallet, TrendingUp, TrendingDown } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { spacing } from '../../theme/spacing';
@@ -24,6 +27,7 @@ const MOCK_HOLDING = {
 const MOCK_PRICE = { type: 'SJC', buy: '79500000', sell: '81500000', updatedAt: new Date().toISOString() };
 
 export const GoldDetailScreen = ({ route, navigation }: any) => {
+  const { t } = useTranslation();
   // const { holdingId } = route.params;
   const holding = MOCK_HOLDING; // In real app: useGetHolding(holdingId)
   const currentPrice = MOCK_PRICE;
@@ -79,8 +83,8 @@ export const GoldDetailScreen = ({ route, navigation }: any) => {
         </View>
 
         <View style={styles.detailsContainer}>
-            <DetailItem icon={<Scale size={20} color={colors.secondary} />} label="Weight" value={`${holding.weight} ${holding.unit}`} />
-            <DetailItem icon={<Wallet size={20} color={colors.secondary} />} label="Purchase Price" value={`${formatVND(holding.purchasePrice)} / ${holding.unit === 'TAEL' ? 'Tael' : 'Gram'}`} />
+            <DetailItem icon={<Scale size={20} color={colors.secondary} />} label="Weight" value={`${holding.weight} ${t(`units.${holding.unit.toLowerCase()}`)}`} />
+            <DetailItem icon={<Wallet size={20} color={colors.secondary} />} label="Purchase Price" value={`${formatVND(holding.purchasePrice)} / ${t(`units.${holding.unit.toLowerCase()}`)}`} />
             <DetailItem icon={<Calendar size={20} color={colors.secondary} />} label="Purchase Date" value={formatDate(holding.purchaseDate)} />
             {holding.notes && (
                 <View style={styles.notesContainer}>

@@ -359,3 +359,18 @@
 - [ ] Database hosting setup (TBD)
 - [ ] FCM production credentials setup
 - [ ] Beta testing (TestFlight / Play internal track)
+---
+
+## 🛠️ General Maintenance & Global Fixes
+
+### Infrastructure & Deprecations
+- [x] Migrate `SafeAreaView` from `react-native` to `react-native-safe-area-context`:
+  - [x] Wrap application with `SafeAreaProvider` in `App.tsx` or `RootNavigation`
+  - [x] Replace `SafeAreaView` occurrences in `SavingsScreen.tsx`, `StocksScreen.tsx`, and `GoldScreen.tsx`
+  - [x] Adjust padding/insets for custom headers and notches
+
+### Bug Fixes
+- [ ] Fix Price Fetching Failures:
+  - [ ] Gold: Investigate and fix intermittent SJC scraping failures (check for DOM changes or rate limits)
+  - [ ] Stocks: Implement retry logic and error handling for VNDirect API (`finfo-api`)
+  - [ ] Global: Add a "Last sync failed" warning UI when price data is stale

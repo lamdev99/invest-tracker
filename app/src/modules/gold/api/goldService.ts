@@ -1,64 +1,41 @@
 import { GoldPrice, GoldType } from '../types';
-
-const SJC_URL = 'https://sjc.com.vn/bieu-do-gia-vang';
-const XAU_URL = 'https://www.tradingview-widget.com/embed-widget/single-quote/?locale=vi_VN#%7B%22symbol%22%3A%22PEPPERSTONE%3AXAUUSD%22%2C%22width%22%3A300%2C%22height%22%3A126%2C%22isTransparent%22%3Atrue%2C%22colorTheme%22%3A%22light%22%2C%22utm_source%22%3A%22sjc.com.vn%22%2C%22utm_medium%22%3A%22widget%22%2C%22utm_campaign%22%3A%22single-quote%22%2C%22page-uri%22%3A%22sjc.com.vn%2Fbieu-do-gia-vang%22%7D';
+import { fetchWithRetry } from '../../../utils/api';
 
 export const fetchGoldPrices = async (): Promise<GoldPrice[]> => {
+  const VANG_TODAY_API = 'https://vang.today/api/prices';
+
   try {
     const prices: GoldPrice[] = [];
 
-    // 1. Fetch SJC Price from HTML
-    const sjcResponse = await fetch(SJC_URL);
-    const sjcHtml = await sjcResponse.text();
-    
-    // Regex to find SJC Buy/Sell in the table
-    // tr[1]/td[3] is Buy, td[4] is Sell. tr[1] usually has 1L SJC.
-    const sjcMatches = sjcHtml.match(/\d{2,3},\d{3}/g) || [];
-    if (sjcMatches.length >= 2) {
-      const buyMatch = sjcMatches[0]!;
-      const sellMatch = sjcMatches[1]!;
-      const buyPrice = buyMatch.replace(/,/g, '') + '000';
-      const sellPrice = sellMatch.replace(/,/g, '') + '000';
-      
-      prices.push({
-        type: 'SJC',
-        buy: buyPrice,
-        sell: sellPrice,
-        updatedAt: new Date().toISOString(),
-      });
+    // 1. Fetch from Vang.Today API (Reliable third-party aggregator)
+    const response = await fetchWithRetry(VANG_TODAY_API);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch gold prices from Vang.Today: ${response.status}`);
     }
+    const json = await response.json();
 
+    if (json.success && json.prices) {
+      // SJL1L10 = SJC 1L-10L
+      const sjc = json.prices['SJL1L10'];
+      if (sjc) {
+        prices.push({
+          type: 'SJC',
+          buy: sjc.buy.toString(),
+          sell: sjc.sell.toString(),
+          updatedAt: new Date(json.timestamp * 1000).toISOString(),
+        });
+      }
 
-
-
-    // 2. Fetch XAU/USD from TradingView widget
-    const xauResponse = await fetch(XAU_URL);
-    const xauHtml = await xauResponse.text();
-    
-    // Extract price from the widget HTML/JS
-    // Look for "last":XXXX.XX
-    const xauMatch = xauHtml.match(/"last":([\d.]+)/);
-    const xauPriceValue = xauMatch ? xauMatch[1] : null;
-
-    if (xauPriceValue) {
-        // We'll treat XAU as a separate type or just use it for reference
-        // For this app, we might need a 999.9 price too. 
-        // 999.9 is often very close to XAU/USD converted to VND.
-        // But for now, we'll just put it as a mock for '9999' or a new type.
-        // Let's assume the user wants 9999 to be derived or they have a source.
-        // Actually, let's just add XAU/USD for now if the type exists.
-        
-        // Let's find 9999 in the SJC table too (usually Row 2 or later)
-        if (sjcMatches.length >= 4) {
-             const buy9999 = sjcMatches[2].replace(/,/g, '') + '000';
-             const sell9999 = sjcMatches[3].replace(/,/g, '') + '000';
-             prices.push({
-                type: '9999',
-                buy: buy9999,
-                sell: sell9999,
-                updatedAt: new Date().toISOString(),
-             });
-        }
+      // SJ9999 = SJC 99.99
+      const sj9999 = json.prices['SJ9999'];
+      if (sj9999) {
+        prices.push({
+          type: '9999',
+          buy: sj9999.buy.toString(),
+          sell: sj9999.sell.toString(),
+          updatedAt: new Date(json.timestamp * 1000).toISOString(),
+        });
+      }
     }
 
     return prices;

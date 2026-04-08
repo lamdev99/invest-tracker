@@ -5,8 +5,9 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { useTranslation } from 'react-i18next';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
@@ -46,10 +47,10 @@ export const SavingsScreen = ({ navigation }: any) => {
         ListHeaderComponent={
           <View style={styles.header}>
             <View style={styles.summaryCard}>
-              <Text style={styles.summaryLabel}>Total Savings</Text>
+              <Text style={styles.summaryLabel}>{t('savings.totalSavings')}</Text>
               <Text style={styles.summaryValue}>{formatVND(totalPrincipal)}</Text>
             </View>
-            <Text style={styles.sectionTitle}>Your Deposits</Text>
+            <Text style={styles.sectionTitle}>{t('savings.yourDeposits')}</Text>
           </View>
         }
         renderItem={({ item }) => (
@@ -57,8 +58,8 @@ export const SavingsScreen = ({ navigation }: any) => {
         )}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No deposits yet.</Text>
-            <Text style={styles.emptySubText}>Tap + on Dashboard to add one.</Text>
+            <Text style={styles.emptyText}>{t('savings.emptyState')}</Text>
+            <Text style={styles.emptySubText}>{t('savings.emptyStateAction')}</Text>
           </View>
         }
         onRefresh={refetch}

@@ -22,6 +22,7 @@ interface GoldHoldingFormProps {
 }
 
 export const GoldHoldingForm = ({ initialData, onSubmit, isLoading }: GoldHoldingFormProps) => {
+  const { t } = useTranslation();
   const [type, setType] = useState<GoldType>(initialData?.type || 'SJC');
   const [weight, setWeight] = useState(initialData?.weight || '');
   const [unit, setUnit] = useState<GoldUnit>(initialData?.unit || 'TAEL');
@@ -85,7 +86,7 @@ export const GoldHoldingForm = ({ initialData, onSubmit, isLoading }: GoldHoldin
                 onPress={() => setUnit(u)}
               >
                 <Text style={[styles.tabText, unit === u && styles.activeTabText]}>
-                  {u === 'TAEL' ? 'Tael' : 'Gr'}
+                  {t(`units.${u.toLowerCase()}`)}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -94,7 +95,7 @@ export const GoldHoldingForm = ({ initialData, onSubmit, isLoading }: GoldHoldin
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.label}>Purchase Price (VND per {unit === 'TAEL' ? 'Tael' : 'Gram'}) *</Text>
+        <Text style={styles.label}>Purchase Price (VND / {t(`units.${unit.toLowerCase()}`)}) *</Text>
         <TextInput
           style={styles.input}
           value={purchasePrice}

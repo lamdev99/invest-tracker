@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Coins, ChevronRight, TrendingUp, TrendingDown } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { Card } from '../../../components/Card';
 import { colors } from '../../../theme/colors';
 import { typography } from '../../../theme/typography';
@@ -15,6 +16,7 @@ interface GoldHoldingCardProps {
 }
 
 export const GoldHoldingCard = memo(({ holding, currentPrice, onPress }: GoldHoldingCardProps) => {
+  const { t } = useTranslation();
   const purchasePrice = new Big(holding.purchasePrice);
   const weight = new Big(holding.weight);
   const totalCost = purchasePrice.times(weight);
@@ -44,9 +46,10 @@ export const GoldHoldingCard = memo(({ holding, currentPrice, onPress }: GoldHol
             </View>
             <View>
               <Text style={styles.type}>{holding.type === 'SJC' ? 'SJC Gold' : '999.9 Gold'}</Text>
-              <Text style={styles.weight}>{holding.weight} {holding.unit === 'TAEL' ? 'Tael' : 'Gram'}</Text>
+              <Text style={styles.weight}>{holding.weight} {t(`units.${holding.unit.toLowerCase()}`)}</Text>
             </View>
           </View>
+
           <View style={styles.pnlContainer}>
             <Text style={[styles.pnlValue, { color: isPositive ? colors.success : colors.danger }]}>
               {pnl.gt(0) && '+'}{formatVND(pnl)}

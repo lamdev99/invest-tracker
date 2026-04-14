@@ -11,36 +11,34 @@ import { useTranslation } from 'react-i18next';
 import { colors } from '../../../theme/colors';
 import { typography } from '../../../theme/typography';
 import { spacing } from '../../../theme/spacing';
-import { formatDate } from '../../../utils/date';
-import { GoldHolding, GoldType, GoldUnit } from '../types';
+import { StockPosition, StockExchange } from '../types';
 import { CustomDatePicker } from '../../savings/components/CustomDatePicker';
 
-interface GoldHoldingFormProps {
-  initialData?: Partial<GoldHolding>;
-  onSubmit: (data: Omit<GoldHolding, 'id' | 'createdAt' | 'updatedAt'>) => void;
+interface StockPositionFormProps {
+  initialData?: Partial<StockPosition>;
+  onSubmit: (data: Omit<StockPosition, 'id' | 'createdAt' | 'updatedAt'>) => void;
   isLoading?: boolean;
 }
 
-export const GoldHoldingForm = ({ initialData, onSubmit, isLoading }: GoldHoldingFormProps) => {
-  const { t } = useTranslation();
-  const [type, setType] = useState<GoldType>(initialData?.type || 'SJC');
-  const [weight, setWeight] = useState(initialData?.weight || '');
-  const [unit, setUnit] = useState<GoldUnit>(initialData?.unit || 'TAEL');
-  const [purchasePrice, setPurchasePrice] = useState(initialData?.purchasePrice || '');
+export const StockPositionForm = ({ initialData, onSubmit, isLoading }: StockPositionFormProps) => {
+  const [ticker, setTicker] = useState(initialData?.ticker || '');
+  const [exchange, setExchange] = useState<StockExchange>(initialData?.exchange || 'HOSE');
+  const [shares, setShares] = useState(initialData?.shares || '');
+  const [avgPrice, setAvgPrice] = useState(initialData?.avgPrice || '');
   const [purchaseDate, setPurchaseDate] = useState(initialData?.purchaseDate || new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState(initialData?.notes || '');
 
   const handleSave = () => {
-    if (!weight || !purchasePrice) {
+    if (!ticker || !shares || !avgPrice) {
       alert('Please fill all required fields');
       return;
     }
 
     onSubmit({
-      type,
-      weight,
-      unit,
-      purchasePrice,
+      ticker: ticker.toUpperCase(),
+      exchange,
+      shares,
+      avgPrice,
       purchaseDate,
       notes,
     });
@@ -49,16 +47,28 @@ export const GoldHoldingForm = ({ initialData, onSubmit, isLoading }: GoldHoldin
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.section}>
-        <Text style={styles.label}>Gold Type *</Text>
+        <Text style={styles.label}>Ticker Symbol *</Text>
+        <TextInput
+          style={[styles.input, { fontWeight: '700', fontSize: 18 }]}
+          value={ticker}
+          onChangeText={(text) => setTicker(text.toUpperCase())}
+          placeholder="e.g. VNM, FPT"
+          autoCapitalize="characters"
+          maxLength={10}
+        />
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.label}>Exchange *</Text>
         <View style={styles.tabContainer}>
-          {(['SJC', '9999'] as GoldType[]).map((t) => (
+          {(['HOSE', 'HNX', 'UPCOM'] as StockExchange[]).map((e) => (
             <TouchableOpacity
-              key={t}
-              style={[styles.tab, type === t && styles.activeTab]}
-              onPress={() => setType(t)}
+              key={e}
+              style={[styles.tab, exchange === e && styles.activeTab]}
+              onPress={() => setExchange(e)}
             >
-              <Text style={[styles.tabText, type === t && styles.activeTabText]}>
-                {t === 'SJC' ? 'SJC' : '999.9'}
+              <Text style={[styles.tabText, exchange === e && styles.activeTabText]}>
+                {e}
               </Text>
             </TouchableOpacity>
           ))}
@@ -66,43 +76,26 @@ export const GoldHoldingForm = ({ initialData, onSubmit, isLoading }: GoldHoldin
       </View>
 
       <View style={styles.row}>
-        <View style={[styles.section, { flex: 2, marginRight: 8 }]}>
-          <Text style={styles.label}>Weight *</Text>
+        <View style={[styles.section, { flex: 1, marginRight: 8 }]}>
+          <Text style={styles.label}>Shares *</Text>
           <TextInput
             style={styles.input}
-            value={weight}
-            onChangeText={setWeight}
+            value={shares}
+            onChangeText={setShares}
             keyboardType="numeric"
-            placeholder="0.0"
+            placeholder="0"
           />
         </View>
-        <View style={[styles.section, { flex: 1, marginLeft: 8 }]}>
-          <Text style={styles.label}>Unit *</Text>
-          <View style={styles.tabContainer}>
-            {(['TAEL', 'GRAM'] as GoldUnit[]).map((u) => (
-              <TouchableOpacity
-                key={u}
-                style={[styles.tab, unit === u && styles.activeTab]}
-                onPress={() => setUnit(u)}
-              >
-                <Text style={[styles.tabText, unit === u && styles.activeTabText]}>
-                  {t(`units.${u.toLowerCase()}`)}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+        <View style={[styles.section, { flex: 2, marginLeft: 8 }]}>
+          <Text style={styles.label}>Avg Purchase Price (VND) *</Text>
+          <TextInput
+            style={styles.input}
+            value={avgPrice}
+            onChangeText={setAvgPrice}
+            keyboardType="numeric"
+            placeholder="e.g. 50000"
+          />
         </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.label}>Purchase Price (VND / {t(`units.${unit.toLowerCase()}`)}) *</Text>
-        <TextInput
-          style={styles.input}
-          value={purchasePrice}
-          onChangeText={setPurchasePrice}
-          keyboardType="numeric"
-          placeholder="e.g. 78000000"
-        />
       </View>
 
       <View style={styles.section}>
@@ -122,6 +115,7 @@ export const GoldHoldingForm = ({ initialData, onSubmit, isLoading }: GoldHoldin
           onChangeText={setNotes}
           multiline
           numberOfLines={3}
+          placeholder="Optional notes..."
         />
       </View>
 
@@ -130,7 +124,7 @@ export const GoldHoldingForm = ({ initialData, onSubmit, isLoading }: GoldHoldin
         onPress={handleSave}
         disabled={isLoading}
       >
-        <Text style={styles.buttonText}>{isLoading ? 'Saving...' : 'Save Gold Holding'}</Text>
+        <Text style={styles.buttonText}>{isLoading ? 'Saving...' : 'Save Stock Position'}</Text>
       </TouchableOpacity>
     </ScrollView>
   );

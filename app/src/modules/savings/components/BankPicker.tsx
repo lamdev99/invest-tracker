@@ -8,8 +8,9 @@ import {
   TextInput,
   FlatList,
   Image,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { Search, X, ChevronDown } from 'lucide-react-native';
 import { colors } from '../../../theme/colors';
 import { typography } from '../../../theme/typography';

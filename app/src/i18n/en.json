@@ -5,9 +5,55 @@
     "stocks": "Stocks",
     "gold": "Gold"
   },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "loading": "Loading...",
+    "syncFailed": "Price sync failed",
+    "syncStale": "Data may be stale",
+    "lastSync": "Last successful sync: {{time}}",
+    "justNow": "Just now",
+    "addInvestment": "Add Investment",
+    "addInvestmentSelect": "Select the type of investment you want to add:"
+  },
   "dashboard": {
-    "totalValue": "Total Portfolio Value",
-    "profit": "Profit/Loss",
-    "lastUpdated": "Last Update: {{time}}"
+    "title": "InvestTracker",
+    "lastUpdated": "Data as of {{time}}",
+    "portfolioAllocation": "Portfolio Allocation",
+    "insightsTips": "Insights & Tips",
+    "assetBreakdown": "Asset Breakdown"
+  },
+  "savings": {
+    "title": "Bank Savings",
+    "totalSavings": "Total Savings",
+    "yourDeposits": "Your Deposits",
+    "emptyState": "No deposits yet.",
+    "emptyStateAction": "Tap + on Dashboard to add one."
+  },
+  "gold": {
+    "title": "Gold Holding",
+    "totalValue": "Total Gold Value",
+    "totalPnL": "Total P&L",
+    "yourHoldings": "Your Holdings",
+    "emptyState": "No gold holdings yet.",
+    "emptyStateAction": "Tap + on Dashboard to add your first piece."
+  },
+  "stocks": {
+    "title": "Stock Position",
+    "totalValue": "Total Stock Value",
+    "overallPnL": "Overall P&L",
+    "yourPositions": "Your Positions",
+    "emptyState": "No stocks yet.",
+    "emptyStateAction": "Tap + to track your first stock position."
+  },
+  "units": {
+    "tael": "Tael",
+    "gram": "Gram",
+    "mace": "Mace",
+    "chỉ": "Mace"
   }
 }
+

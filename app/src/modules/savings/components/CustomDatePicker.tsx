@@ -6,8 +6,9 @@ import {
   TouchableOpacity,
   Modal,
   FlatList,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { Calendar as CalendarIcon, X, ChevronRight } from 'lucide-react-native';
 import { colors } from '../../../theme/colors';
 import { typography } from '../../../theme/typography';

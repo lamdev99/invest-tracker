@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { RefreshCw, TrendingUp, TrendingDown } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { Card } from '../../../components/Card';
 import { colors } from '../../../theme/colors';
 import { typography } from '../../../theme/typography';
@@ -15,6 +16,8 @@ interface GoldPriceCardProps {
 }
 
 export const GoldPriceCard = ({ prices, isLoading, onRefresh, lastUpdated }: GoldPriceCardProps) => {
+  const { t } = useTranslation();
+
   return (
     <Card style={styles.card}>
       <View style={styles.header}>
@@ -38,7 +41,7 @@ export const GoldPriceCard = ({ prices, isLoading, onRefresh, lastUpdated }: Gol
           <View key={price.type} style={styles.priceRow}>
             <View style={styles.typeCol}>
               <Text style={styles.typeName}>{price.type === 'SJC' ? 'SJC' : '999.9'}</Text>
-              <Text style={styles.unitLabel}>per Tael</Text>
+              <Text style={styles.unitLabel}>/ {t('units.tael')}</Text>
             </View>
             <View style={styles.valueCol}>
               <Text style={styles.priceLabel}>Buy</Text>

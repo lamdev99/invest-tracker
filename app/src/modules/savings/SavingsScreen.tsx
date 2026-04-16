@@ -17,7 +17,21 @@ import { DepositCard } from './components/DepositCard';
 import { formatVND, sumBigs } from '../../utils/math';
 import Big from 'big.js';
 
-export const SavingsScreen = ({ navigation }: any) => {
+import { useSettingsStore } from '../../store/useSettingsStore';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+type SavingsStackParamList = {
+  SavingsList: undefined;
+  DepositDetail: { depositId: string };
+  AddEditDeposit: { depositId?: string };
+};
+
+interface SavingsScreenProps {
+  navigation: NativeStackNavigationProp<SavingsStackParamList, 'SavingsList'>;
+}
+
+export const SavingsScreen = ({ navigation }: SavingsScreenProps) => {
+  const { isBalanceVisible } = useSettingsStore();
   const { t } = useTranslation();
   const { data: deposits, isLoading, refetch } = useDeposits();
 
@@ -48,7 +62,9 @@ export const SavingsScreen = ({ navigation }: any) => {
           <View style={styles.header}>
             <View style={styles.summaryCard}>
               <Text style={styles.summaryLabel}>{t('savings.totalSavings')}</Text>
-              <Text style={styles.summaryValue}>{formatVND(totalPrincipal)}</Text>
+              <Text style={styles.summaryValue}>
+                {isBalanceVisible ? formatVND(totalPrincipal) : '••••••••'}
+              </Text>
             </View>
             <Text style={styles.sectionTitle}>{t('savings.yourDeposits')}</Text>
           </View>

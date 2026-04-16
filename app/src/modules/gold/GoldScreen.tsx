@@ -19,34 +19,25 @@ import { GoldHoldingCard } from './components/GoldHoldingCard';
 import { useGoldPrice } from './hooks/useGoldPrice';
 import { formatVND, sumBigs } from '../../utils/math';
 import Big from 'big.js';
+import { useSettingsStore } from '../../store/useSettingsStore';
+import { MOCK_HOLDINGS } from './services/goldService';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-const MOCK_HOLDINGS = [
-  {
-    id: '1',
-    type: 'SJC',
-    weight: '2.5',
-    unit: 'TAEL',
-    purchasePrice: '78000000',
-    purchaseDate: '2024-01-15T00:00:00Z',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    type: '9999',
-    weight: '0.5',
-    unit: 'TAEL',
-    purchasePrice: '68500000',
-    purchaseDate: '2023-11-20T00:00:00Z',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+type GoldStackParamList = {
+  GoldList: undefined;
+  GoldDetail: { holdingId: string };
+  AddEditGold: { holdingId?: string };
+};
 
-export const GoldScreen = ({ navigation }: any) => {
+interface GoldScreenProps {
+  navigation: NativeStackNavigationProp<GoldStackParamList, 'GoldList'>;
+}
+
+export const GoldScreen = ({ navigation }: GoldScreenProps) => {
   const { t } = useTranslation();
   const { data: prices, isLoading, isError, refetch } = useGoldPrice();
-  
+  const { isBalanceVisible } = useSettingsStore();
+
   // These will be replaced by real hooks later
   const holdings = MOCK_HOLDINGS;
 
@@ -95,10 +86,10 @@ export const GoldScreen = ({ navigation }: any) => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         refreshControl={
-          <RefreshControl 
-            refreshing={isLoading} 
-            onRefresh={onRefresh} 
-            tintColor={colors.primary} 
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
           />
         }
         ListHeaderComponent={
@@ -106,12 +97,18 @@ export const GoldScreen = ({ navigation }: any) => {
             <View style={styles.summaryCard}>
               <View>
                 <Text style={styles.summaryLabel}>{t('gold.totalValue')}</Text>
-                <Text style={styles.summaryValue}>{formatVND(totalValue)}</Text>
+                <Text style={styles.summaryValue}>
+                  {isBalanceVisible ? formatVND(totalValue) : '••••••••'}
+                </Text>
               </View>
               <View style={styles.pnlContainer}>
                 <Text style={styles.summaryLabel}>{t('gold.totalPnL')}</Text>
                 <Text style={[styles.pnlValue, { color: totalPnL.gte(0) ? colors.success : colors.danger }]}>
-                  {totalPnL.gt(0) && '+'}{formatVND(totalPnL)}
+                  {isBalanceVisible ? (
+                    <>
+                      {totalPnL.gt(0) && '+'}{formatVND(totalPnL)}
+                    </>
+                  ) : '••••••••'}
                 </Text>
               </View>
             </View>
@@ -123,9 +120,9 @@ export const GoldScreen = ({ navigation }: any) => {
               </View>
             )}
             {prices && (
-              <GoldPriceCard 
-                prices={prices} 
-                lastUpdated={t('common.justNow')} 
+              <GoldPriceCard
+                prices={prices}
+                lastUpdated={t('common.justNow')}
                 onRefresh={onRefresh}
                 isLoading={isLoading}
               />
@@ -134,10 +131,10 @@ export const GoldScreen = ({ navigation }: any) => {
           </>
         }
         renderItem={({ item }) => (
-          <GoldHoldingCard 
-            holding={item as any} 
-            currentPrice={prices?.find(p => p.type === item.type)} 
-            onPress={handlePress} 
+          <GoldHoldingCard
+            holding={item as any}
+            currentPrice={prices?.find(p => p.type === item.type)}
+            onPress={handlePress}
           />
         )}
 

@@ -21,68 +21,77 @@ import { GoldDetailScreen } from '../modules/gold/GoldDetailScreen';
 import { AddEditGoldScreen } from '../modules/gold/AddEditGoldScreen';
 import { colors } from '../theme/colors';
 
-const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
+import {
+  GoldStackParamList,
+  StocksStackParamList,
+  SavingsStackParamList,
+  RootTabParamList
+} from './types';
+
+const Tab = createBottomTabNavigator<RootTabParamList>();
+const SavingsStackNav = createNativeStackNavigator<SavingsStackParamList>();
+const StocksStackNav = createNativeStackNavigator<StocksStackParamList>();
+const GoldStackNav = createNativeStackNavigator<GoldStackParamList>();
 
 const SavingsStack = () => {
   const { t } = useTranslation();
   return (
-    <Stack.Navigator
+    <SavingsStackNav.Navigator
       screenOptions={{
         headerStyle: { backgroundColor: colors.surface },
         headerTitleStyle: { color: colors.text },
         headerTintColor: colors.primary,
       }}
     >
-      <Stack.Screen 
-        name="SavingsList" 
-        component={SavingsScreen} 
-        options={{ title: t('navigation.savings') }} 
+      <SavingsStackNav.Screen
+        name="SavingsList"
+        component={SavingsScreen}
+        options={{ title: t('navigation.savings') }}
       />
-      <Stack.Screen 
-        name="DepositDetail" 
-        component={DepositDetailScreen} 
-        options={{ title: 'Deposit Details' }} 
+      <SavingsStackNav.Screen
+        name="DepositDetail"
+        component={DepositDetailScreen as any}
+        options={{ title: 'Deposit Details' }}
       />
-      <Stack.Screen 
-        name="AddEditDeposit" 
-        component={AddEditDepositScreen} 
-        options={({ route }: any) => ({ 
-          title: route.params?.depositId ? 'Edit Deposit' : 'Add Deposit' 
-        })} 
+      <SavingsStackNav.Screen
+        name="AddEditDeposit"
+        component={AddEditDepositScreen as any}
+        options={({ route }: any) => ({
+          title: route.params?.depositId ? 'Edit Deposit' : 'Add Deposit'
+        })}
       />
-    </Stack.Navigator>
+    </SavingsStackNav.Navigator>
   );
 };
 
 const StocksStack = () => {
   const { t } = useTranslation();
   return (
-    <Stack.Navigator
+    <StocksStackNav.Navigator
       screenOptions={{
         headerStyle: { backgroundColor: colors.surface },
         headerTitleStyle: { color: colors.text },
         headerTintColor: colors.primary,
       }}
     >
-      <Stack.Screen 
-        name="StockList" 
-        component={StocksScreen} 
-        options={{ title: t('navigation.stocks') }} 
+      <StocksStackNav.Screen
+        name="StockList"
+        component={StocksScreen}
+        options={{ title: t('navigation.stocks') }}
       />
-      <Stack.Screen 
-        name="StockDetail" 
-        component={StockDetailScreen} 
-        options={{ title: 'Stock Details' }} 
+      <StocksStackNav.Screen
+        name="StockDetail"
+        component={StockDetailScreen as any}
+        options={{ title: 'Stock Details' }}
       />
-      <Stack.Screen 
-        name="AddEditStock" 
-        component={AddEditStockScreen} 
-        options={({ route }: any) => ({ 
-          title: route.params?.positionId ? 'Edit Position' : 'Add Position' 
-        })} 
+      <StocksStackNav.Screen
+        name="AddEditStock"
+        component={AddEditStockScreen as any}
+        options={({ route }: any) => ({
+          title: route.params?.positionId ? 'Edit Position' : 'Add Position'
+        })}
       />
-    </Stack.Navigator>
+    </StocksStackNav.Navigator>
   );
 };
 
@@ -90,31 +99,31 @@ const GoldStack = () => {
 
   const { t } = useTranslation();
   return (
-    <Stack.Navigator
+    <GoldStackNav.Navigator
       screenOptions={{
         headerStyle: { backgroundColor: colors.surface },
         headerTitleStyle: { color: colors.text },
         headerTintColor: colors.primary,
       }}
     >
-      <Stack.Screen 
-        name="GoldList" 
-        component={GoldScreen} 
-        options={{ title: t('navigation.gold') }} 
+      <GoldStackNav.Screen
+        name="GoldList"
+        component={GoldScreen}
+        options={{ title: t('navigation.gold') }}
       />
-      <Stack.Screen 
-        name="GoldDetail" 
-        component={GoldDetailScreen} 
-        options={{ title: 'Gold Details' }} 
+      <GoldStackNav.Screen
+        name="GoldDetail"
+        component={GoldDetailScreen}
+        options={{ title: 'Gold Details' }}
       />
-      <Stack.Screen 
-        name="AddEditGold" 
-        component={AddEditGoldScreen} 
-        options={({ route }: any) => ({ 
-          title: route.params?.holdingId ? 'Edit Gold Holding' : 'Add Gold Holding' 
-        })} 
+      <GoldStackNav.Screen
+        name="AddEditGold"
+        component={AddEditGoldScreen}
+        options={({ route }: any) => ({
+          title: route.params?.holdingId ? 'Edit Gold Holding' : 'Add Gold Holding'
+        })}
       />
-    </Stack.Navigator>
+    </GoldStackNav.Navigator>
   );
 };
 

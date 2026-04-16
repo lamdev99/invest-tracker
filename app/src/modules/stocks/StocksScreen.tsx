@@ -21,6 +21,14 @@ import { StockPositionCard } from './components/StockPositionCard';
 import { formatVND } from '../../utils/math';
 import Big from 'big.js';
 import { useStockPrices } from './hooks/useStockPrice';
+import { useSettingsStore } from '../../store/useSettingsStore';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import { StocksStackParamList } from '../../navigation/types';
+
+interface StocksScreenProps {
+  navigation: NativeStackNavigationProp<StocksStackParamList, 'StockList'>;
+}
 
 // Mock positions remain for now until DB is ready
 const MOCK_POSITIONS = [
@@ -48,10 +56,11 @@ const MOCK_POSITIONS = [
 
 const WATCHLIST = ['VNM', 'FPT', 'VCB', 'HPG', 'SSI', 'VIC'];
 
-export const StocksScreen = ({ navigation }: any) => {
+export const StocksScreen = ({ navigation }: StocksScreenProps) => {
+  const { isBalanceVisible } = useSettingsStore();
   const { t } = useTranslation();
   const positions = MOCK_POSITIONS;
-  
+
   // Fetch real-time prices for watchlist and holdings
   const tickerList = useMemo(() => {
     const fromPositions = positions.map(p => p.ticker);
@@ -61,7 +70,7 @@ export const StocksScreen = ({ navigation }: any) => {
   const { data: prices = [], isLoading, refetch, isError } = useStockPrices(tickerList);
 
   const totalValue = useMemo(() => {
-    return positions.reduce((acc, pos) => {
+    return positions.reduce((acc: Big, pos) => {
       const priceObj = prices.find((p) => p.ticker === pos.ticker);
       const marketPrice = priceObj ? new Big(priceObj.currentPrice) : new Big(pos.avgPrice);
       return acc.plus(marketPrice.times(pos.shares));
@@ -69,7 +78,7 @@ export const StocksScreen = ({ navigation }: any) => {
   }, [positions, prices]);
 
   const totalPnL = useMemo(() => {
-    return positions.reduce((acc, pos) => {
+    return positions.reduce((acc: Big, pos) => {
       const priceObj = prices.find((p) => p.ticker === pos.ticker);
       if (!priceObj) return acc;
       const marketPrice = new Big(priceObj.currentPrice);
@@ -98,12 +107,18 @@ export const StocksScreen = ({ navigation }: any) => {
             <View style={styles.summaryCard}>
               <View>
                 <Text style={styles.summaryLabel}>{t('stocks.totalValue')}</Text>
-                <Text style={styles.summaryValue}>{formatVND(totalValue)}</Text>
+                <Text style={styles.summaryValue}>
+                  {isBalanceVisible ? formatVND(totalValue) : '••••••••'}
+                </Text>
               </View>
               <View style={styles.pnlContainer}>
                 <Text style={styles.summaryLabel}>{t('stocks.overallPnL')}</Text>
                 <Text style={[styles.pnlValue, { color: totalPnL.gte(0) ? colors.success : colors.danger }]}>
-                  {totalPnL.gt(0) && '+'}{formatVND(totalPnL)}
+                  {isBalanceVisible ? (
+                    <>
+                      {totalPnL.gt(0) && '+'}{formatVND(totalPnL)}
+                    </>
+                  ) : '••••••••'}
                 </Text>
               </View>
             </View>
@@ -115,26 +130,26 @@ export const StocksScreen = ({ navigation }: any) => {
               </View>
             )}
 
-            <StockPriceCard 
-              prices={prices} 
-              lastUpdated={t('common.justNow')} 
+            <StockPriceCard
+              prices={prices}
+              lastUpdated={t('common.justNow')}
               onRefresh={onRefresh}
               isLoading={isLoading}
             />
 
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>{t('stocks.yourPositions')}</Text>
-              <TouchableOpacity onPress={() => navigation.navigate('AddEditStock')}>
+              <TouchableOpacity onPress={() => navigation.navigate('AddEditStock', {})}>
                 <Plus size={20} color={colors.primary} />
               </TouchableOpacity>
             </View>
           </>
         }
         renderItem={({ item }) => (
-          <StockPositionCard 
-            position={item as any} 
-            currentPrice={prices.find(p => p.ticker === item.ticker)} 
-            onPress={handlePress} 
+          <StockPositionCard
+            position={item as any}
+            currentPrice={prices.find(p => p.ticker === item.ticker)}
+            onPress={handlePress}
           />
         )}
         ListEmptyComponent={

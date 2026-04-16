@@ -13,20 +13,36 @@ import Big from 'big.js';
 
 // Mock data for UI development
 const MOCK_HOLDING = {
-    id: '1',
-    type: 'SJC',
-    weight: '2.5',
-    unit: 'TAEL',
-    purchasePrice: '78000000',
-    purchaseDate: '2024-01-15T00:00:00Z',
-    notes: 'Bought at SJC store in District 1.',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+  id: '1',
+  type: 'SJC',
+  weight: '2.5',
+  unit: 'TAEL',
+  purchasePrice: '78000000',
+  purchaseDate: '2024-01-15T00:00:00Z',
+  notes: 'Bought at SJC store in District 1.',
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
 };
 
 const MOCK_PRICE = { type: 'SJC', buy: '79500000', sell: '81500000', updatedAt: new Date().toISOString() };
 
-export const GoldDetailScreen = ({ route, navigation }: any) => {
+import { useSettingsStore } from '../../store/useSettingsStore';
+import { RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+type GoldStackParamList = {
+  GoldList: undefined;
+  GoldDetail: { holdingId: string };
+  AddEditGold: { holdingId?: string };
+};
+
+interface GoldDetailScreenProps {
+  route: RouteProp<GoldStackParamList, 'GoldDetail'>;
+  navigation: NativeStackNavigationProp<GoldStackParamList, 'GoldDetail'>;
+}
+
+export const GoldDetailScreen = ({ route, navigation }: GoldDetailScreenProps) => {
+  const { isBalanceVisible } = useSettingsStore();
   const { t } = useTranslation();
   // const { holdingId } = route.params;
   const holding = MOCK_HOLDING; // In real app: useGetHolding(holdingId)
@@ -43,12 +59,12 @@ export const GoldDetailScreen = ({ route, navigation }: any) => {
       'Are you sure you want to delete this gold holding?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Delete', 
+        {
+          text: 'Delete',
           style: 'destructive',
           onPress: () => {
-             // delete mutation
-             navigation.goBack();
+            // delete mutation
+            navigation.goBack();
           }
         },
       ]
@@ -59,71 +75,81 @@ export const GoldDetailScreen = ({ route, navigation }: any) => {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-            <View style={styles.iconContainer}>
-                <Coins size={32} color={colors.chart.gold} />
-            </View>
-            <Text style={styles.title}>{holding.type} Gold Holding</Text>
-            <View style={[styles.pnlBadge, { backgroundColor: pnl.gte(0) ? `${colors.success}15` : `${colors.danger}15` }]}>
-                {pnl.gte(0) ? <TrendingUp size={16} color={colors.success} /> : <TrendingDown size={16} color={colors.danger} />}
-                <Text style={[styles.pnlText, { color: pnl.gte(0) ? colors.success : colors.danger }]}>
-                    {formatVND(pnl)} ({pnlPercent.toFixed(2)}%)
-                </Text>
-            </View>
+          <View style={styles.iconContainer}>
+            <Coins size={32} color={colors.chart.gold} />
+          </View>
+          <Text style={styles.title}>{holding.type} Gold Holding</Text>
+          <View style={[styles.pnlBadge, { backgroundColor: pnl.gte(0) ? `${colors.success}15` : `${colors.danger}15` }]}>
+            {pnl.gte(0) ? <TrendingUp size={16} color={colors.success} /> : <TrendingDown size={16} color={colors.danger} />}
+            <Text style={[styles.pnlText, { color: pnl.gte(0) ? colors.success : colors.danger }]}>
+              {isBalanceVisible ? `${formatVND(pnl)} (${pnlPercent.toFixed(2)}%)` : '••••••••'}
+            </Text>
+          </View>
         </View>
 
         <View style={styles.statsGrid}>
-            <View style={styles.statCard}>
-                <Text style={styles.statLabel}>Market Value</Text>
-                <Text style={[styles.statValue, { color: colors.primary }]}>{formatVND(marketValue)}</Text>
-            </View>
-            <View style={styles.statCard}>
-                <Text style={styles.statLabel}>Cost Basis</Text>
-                <Text style={styles.statValue}>{formatVND(costBasis)}</Text>
-            </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Market Value</Text>
+            <Text style={[styles.statValue, { color: colors.primary }]}>{isBalanceVisible ? formatVND(marketValue) : '••••••••'}</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Cost Basis</Text>
+            <Text style={styles.statValue}>{isBalanceVisible ? formatVND(costBasis) : '••••••••'}</Text>
+          </View>
         </View>
 
         <View style={styles.detailsContainer}>
-            <DetailItem icon={<Scale size={20} color={colors.secondary} />} label="Weight" value={`${holding.weight} ${t(`units.${holding.unit.toLowerCase()}`)}`} />
-            <DetailItem icon={<Wallet size={20} color={colors.secondary} />} label="Purchase Price" value={`${formatVND(holding.purchasePrice)} / ${t(`units.${holding.unit.toLowerCase()}`)}`} />
-            <DetailItem icon={<Calendar size={20} color={colors.secondary} />} label="Purchase Date" value={formatDate(holding.purchaseDate)} />
-            {holding.notes && (
-                <View style={styles.notesContainer}>
-                    <Text style={styles.notesLabel}>Notes</Text>
-                    <Text style={styles.notesText}>{holding.notes}</Text>
-                </View>
-            )}
+          <DetailItem icon={<Scale size={20} color={colors.secondary} />} label="Weight" value={`${holding.weight} ${t(`units.${holding.unit.toLowerCase()}`)}`} />
+          <DetailItem
+            icon={<Wallet size={20} color={colors.secondary} />}
+            label="Purchase Price"
+            value={isBalanceVisible ? `${formatVND(holding.purchasePrice)} / ${t(`units.${holding.unit.toLowerCase()}`)}` : '••••••••'}
+          />
+          <DetailItem icon={<Calendar size={20} color={colors.secondary} />} label="Purchase Date" value={formatDate(holding.purchaseDate)} />
+          {holding.notes && (
+            <View style={styles.notesContainer}>
+              <Text style={styles.notesLabel}>Notes</Text>
+              <Text style={styles.notesText}>{holding.notes}</Text>
+            </View>
+          )}
         </View>
 
         <View style={styles.actions}>
-            <TouchableOpacity 
-                style={[styles.actionButton, styles.editButton]}
-                onPress={() => navigation.navigate('AddEditGold', { holdingId: holding.id })}
-            >
-                <Edit2 size={20} color={colors.white} />
-                <Text style={styles.buttonText}>Edit Holding</Text>
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.editButton]}
+            onPress={() => navigation.navigate('AddEditGold', { holdingId: holding.id })}
+          >
+            <Edit2 size={20} color={colors.white} />
+            <Text style={styles.buttonText}>Edit Holding</Text>
+          </TouchableOpacity>
 
-            <TouchableOpacity 
-                style={[styles.actionButton, styles.deleteButton]}
-                onPress={handleDelete}
-            >
-                <Trash2 size={20} color={colors.danger} />
-                <Text style={[styles.buttonText, { color: colors.danger }]}>Delete</Text>
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.deleteButton]}
+            onPress={handleDelete}
+          >
+            <Trash2 size={20} color={colors.danger} />
+            <Text style={[styles.buttonText, { color: colors.danger }]}>Delete</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-const DetailItem = ({ icon, label, value }: any) => (
-    <View style={styles.detailItem}>
-        <View style={styles.detailLabelRow}>
-            {icon}
-            <Text style={styles.detailLabel}>{label}</Text>
-        </View>
-        <Text style={styles.detailValue}>{value}</Text>
+interface DetailItemProps {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}
+
+const DetailItem = ({ icon, label, value }: DetailItemProps) => (
+  <View style={styles.detailItem}>
+    <View style={styles.detailLabelRow}>
+      {icon}
+      <Text style={styles.detailLabel}>{label}</Text>
     </View>
+    <Text style={styles.detailValue}>{value}</Text>
+  </View>
 );
 
 const styles = StyleSheet.create({

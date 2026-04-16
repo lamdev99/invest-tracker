@@ -15,7 +15,7 @@ import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { spacing } from '../../theme/spacing';
 import { SyncStatusBanner } from '../../components/SyncStatusBanner';
-import { useDashboardStore } from '../../store/useDashboardStore';
+import { useDashboardStore } from './store/useDashboardStore';
 import { TotalValueCard } from './components/TotalValueCard';
 import { PnLSummaryCard } from './components/PnLSummaryCard';
 import { AllocationChart } from './components/AllocationChart';
@@ -24,7 +24,20 @@ import { RecommendationStrip } from './components/RecommendationStrip';
 import { QuickAddFAB } from './components/QuickAddFAB';
 import { formatDate } from '../../utils/date';
 
-export const DashboardScreen = ({ navigation }: any) => {
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { CompositeNavigationProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+type DashboardNavigationProp = CompositeNavigationProp<
+  BottomTabNavigationProp<any, 'DashboardTab'>,
+  NativeStackNavigationProp<any>
+>;
+
+interface DashboardScreenProps {
+  navigation: DashboardNavigationProp;
+}
+
+export const DashboardScreen = ({ navigation }: DashboardScreenProps) => {
   const { t } = useTranslation();
   const { summary, isLoading, syncErrors, refreshDashboard } = useDashboardStore();
   const [refreshing, setRefreshing] = useState(false);
@@ -62,15 +75,15 @@ export const DashboardScreen = ({ navigation }: any) => {
             )}
           </View>
 
-          <SyncStatusBanner 
-            status={syncStatus} 
+          <SyncStatusBanner
+            status={syncStatus}
             message={syncErrors.gold || syncErrors.stocks || undefined}
             lastUpdated={summary ? formatDate(summary.lastUpdated) : undefined}
           />
 
           <TotalValueCard />
           <PnLSummaryCard />
-          
+
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t('dashboard.portfolioAllocation')}</Text>
             <AllocationChart />

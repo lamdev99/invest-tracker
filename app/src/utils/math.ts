@@ -1,5 +1,7 @@
 import Big from 'big.js';
 
+Big.RM = 1; // Global Round Half Up
+
 /**
  * Formats a number or Big object to VND currency string.
  * Format: 1.000.000,00 (dot for thousands, comma for decimal)
@@ -8,9 +10,9 @@ export const formatVND = (amount: number | string | Big): string => {
   const value = new Big(amount);
   const formatted = value.toFixed(2);
   const [integerPart, decimalPart] = formatted.split('.');
-  
+
   const withDots = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  
+
   return `${withDots},${decimalPart}`;
 };
 
@@ -50,12 +52,12 @@ export const calculateCompoundInterest = (
   const base = new Big(1).plus(r.div(n));
   // (n * t)
   const exponent = n.times(t).toNumber();
-  
+
   // Big.js doesn't have a native pow for non-integers, 
   // but n*t for compound interest is usually an integer (number of periods).
   // If not, we fall back to Math.pow for the ratio and wrap it back.
   const power = base.pow(Math.floor(exponent));
-  
+
   return P.times(power);
 };
 
@@ -122,10 +124,10 @@ export const calculateCompoundInterestForDeposit = (
 
   const base = new Big(1).plus(r.div(n));
   const exponent = n.times(t).toNumber();
-  
+
   // Power calculation with integer fallback where possible
   const power = base.pow(Math.floor(exponent));
-  
+
   return P.times(power).round(2, 1);
 };
 import { Deposit } from '../modules/savings/types';
@@ -133,30 +135,34 @@ import { Deposit } from '../modules/savings/types';
 /**
  * Dispatches to simple or compound interest calculation based on deposit type.
  * Returns interest earned "to date" or at full maturity.
+ * Uses exact days calculation (Actual/365) to avoid floating point inaccuracies.
  */
 export const calculateInterestEarned = (deposit: Deposit, asOfDate: Date = new Date()): Big => {
   const start = new Date(deposit.startDate);
   const maturity = new Date(deposit.maturityDate);
   const now = asOfDate > maturity ? maturity : asOfDate;
-  
+
   if (now < start) return new Big(0);
 
   const diffTime = now.getTime() - start.getTime();
-  const monthsElapsed = diffTime / (1000 * 60 * 60 * 24 * 30.44); // Approx months
+  const daysElapsed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  const yearsElapsed = new Big(daysElapsed).div(365);
 
   if (deposit.interestType === 'SIMPLE') {
-    return calculateSimpleInterestForDeposit(
-      deposit.principal,
-      deposit.annualRate,
-      monthsElapsed
-    );
+    // Simple Interest Logic: P * r * (days / 365)
+    return new Big(deposit.principal).times(deposit.annualRate).times(yearsElapsed).round(0, 1);
   } else {
-    return calculateCompoundInterestForDeposit(
-      deposit.principal,
-      deposit.annualRate,
-      monthsElapsed,
-      deposit.compoundFrequency || 12
-    );
+    // Compound Interest Logic: P * (1 + r/n)^(n * t)
+    const P = new Big(deposit.principal);
+    const r = new Big(deposit.annualRate);
+    const n = new Big(deposit.compoundFrequency || 12);
+    const t = yearsElapsed;
+
+    const base = new Big(1).plus(r.div(n));
+    const exponent = n.times(t).toNumber();
+    const power = base.pow(Math.floor(exponent));
+
+    return P.times(power).minus(P).round(0, 1); // Use minus(P) to only get interest
   }
 };
 
@@ -164,14 +170,6 @@ export const calculateInterestEarned = (deposit: Deposit, asOfDate: Date = new D
  * Calculate total value at maturity (Principal + Total Interest)
  */
 export const calculateMaturityValue = (deposit: Deposit): Big => {
-  const interest = deposit.interestType === 'SIMPLE'
-    ? calculateSimpleInterestForDeposit(deposit.principal, deposit.annualRate, deposit.termMonths)
-    : calculateCompoundInterestForDeposit(
-        deposit.principal, 
-        deposit.annualRate, 
-        deposit.termMonths, 
-        deposit.compoundFrequency || 12
-      );
-  
+  const interest = calculateInterestEarned(deposit, new Date(deposit.maturityDate));
   return new Big(deposit.principal).plus(interest);
 };

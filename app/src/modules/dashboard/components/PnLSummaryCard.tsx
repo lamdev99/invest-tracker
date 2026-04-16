@@ -6,7 +6,7 @@ import { Card } from '../../../components/Card';
 import { colors } from '../../../theme/colors';
 import { typography } from '../../../theme/typography';
 import { formatVND } from '../../../utils/math';
-import { useDashboardStore } from '../../../store/useDashboardStore';
+import { useDashboardStore } from '../store/useDashboardStore';
 
 export const PnLSummaryCard = () => {
   const { t } = useTranslation();

@@ -6,11 +6,13 @@ import { Card } from '../../../components/Card';
 import { colors } from '../../../theme/colors';
 import { typography } from '../../../theme/typography';
 import { formatVND } from '../../../utils/math';
-import { useDashboardStore } from '../../../store/useDashboardStore';
+import { useDashboardStore } from '../store/useDashboardStore';
+import { useSettingsStore } from '../../../store/useSettingsStore';
 
 export const TotalValueCard = () => {
   const { t } = useTranslation();
-  const { summary, isBalanceVisible, toggleBalanceVisibility } = useDashboardStore();
+  const { summary } = useDashboardStore();
+  const { isBalanceVisible, toggleBalanceVisibility } = useSettingsStore();
 
   return (
     <Card style={styles.card}>

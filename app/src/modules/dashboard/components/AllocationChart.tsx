@@ -4,7 +4,7 @@ import Svg, { G, Circle } from 'react-native-svg';
 import { colors } from '../../../theme/colors';
 import { typography } from '../../../theme/typography';
 import { calculateAllocationPercent } from '../../../utils/math';
-import { useDashboardStore } from '../../../store/useDashboardStore';
+import { useDashboardStore } from '../store/useDashboardStore';
 
 export const AllocationChart = () => {
   const { summary } = useDashboardStore();
@@ -56,8 +56,8 @@ export const AllocationChart = () => {
           </G>
         </Svg>
         <View style={styles.centerText}>
-             <Text style={styles.centerLabel}>Asset</Text>
-             <Text style={styles.centerValue}>Breakdown</Text>
+          <Text style={styles.centerLabel}>Asset</Text>
+          <Text style={styles.centerValue}>Breakdown</Text>
         </View>
       </View>
 
